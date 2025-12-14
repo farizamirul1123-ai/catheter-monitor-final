@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catheter Monitoring System | Group 3 Console (PostgreSQL)</title> 
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* CSS Dikekalkan untuk gaya Firebase Console Dark Mode */
+        :root {
+            --fb-dark: #202124; 
+            --fb-card: #292a2d; 
+            --fb-nav: #282a2e; 
+            --fb-nav-active: #3b3d40; 
+            --fb-text-light: #e8eaed; 
+            --fb-text-secondary: #9aa0a6; 
+            --fb-primary: #1a73e8; 
+            --fb-green: #34a853;
+            --fb-red: #ea4335;
+            --fb-yellow: #fbbc04;
+            /* NEW COLORS FOR LIGHTER GRAPHS */
+            --chart-line: #F0F0F0;
+            --chart-grid-line: #3c4043; 
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--fb-dark);
+            color: var(--fb-text-light);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* --- NAVIGATION BAR (Dikekalkan) --- */
+        .sidebar {
+            width: 280px;
+            background-color: var(--fb-nav);
+            padding: 10px 0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+            flex-shrink: 0;
+        }
+        .logo-section {
+            padding: 15px 25px;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--fb-text-light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #3c4043;
+            margin-bottom: 10px;
+        }
+        .nav-item {
+            padding: 12px 25px;
+            color: var(--fb-text-secondary);
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .nav-item:hover { background-color: #35363a; color: var(--fb-text-light); }
+        .nav-item.active {
+            background-color: var(--fb-nav-active);
+            color: var(--fb-text-light);
+            border-left: 4px solid var(--fb-primary);
+            padding-left: 21px;
+            font-weight: 600;
+        }
+        .nav-heading {
+            padding: 15px 25px 5px;
+            font-size: 0.8em;
+            font-weight: 700;
+            color: var(--fb-text-secondary);
+            text-transform: uppercase;
+        }
+
+        /* --- CONTENT & CARDS (Dikekalkan) --- */
+        .content-area {
+            flex-grow: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #3c4043;
+            padding-bottom: 15px;
+        }
+        .page-title {
+            font-size: 1.8em;
+            font-weight: 700;
+        }
+        .last-updated {
+            font-size: 0.9em;
+            color: var(--fb-text-secondary);
+        }
+        /* Grid Metrik kini 3 lajur */
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .card {
+            background-color: var(--fb-card);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+            margin-bottom: 20px; 
+        }
+        .card-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--fb-text-light);
+            margin-bottom: 15px;
+            border-bottom: 1px solid #3c4043;
+            padding-bottom: 10px;
+        }
+        .metric-indicator {
+            text-align: left;
+            padding: 15px;
+            border: 1px solid #3c4043;
+            border-radius: 4px;
+            min-height: 120px; /* FIX SUSUNAN */
+        }
+        .indicator-value {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--fb-yellow);
+        }
+        .value-label {
+            font-size: 0.9em;
+            color: var(--fb-text-secondary);
+            margin-top: 5px;
+        }
+        .project-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .team-member-card {
+            background-color: #33363b;
+            padding: 15px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-left: 4px solid var(--fb-yellow);
+        }
+        .member-photo-placeholder {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            color: var(--fb-text-light);
+            flex-shrink: 0;
+            border: 2px solid var(--fb-primary);
+        }
+        .member-info h4 { font-size: 1em; font-weight: 700; margin-bottom: 3px; }
+        .member-info p { font-size: 0.85em; color: var(--fb-text-secondary); }
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85em;
+        }
+        .log-table th, .log-table td {
+            padding: 10px 8px;
+            text-align: left;
+            border-bottom: 1px solid #3c4043;
+            color: var(--fb-text-light);
+        }
+        .log-table th {
+            color: var(--fb-text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.75em;
+        }
+        .control-group {
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            background-color: var(--fb-nav-active);
+            border: 1px solid #3c4043;
+        }
+        .control-group h4 {
+            color: var(--fb-primary);
+            margin-bottom: 10px;
+            font-size: 1.05em;
+            font-weight: 600;
+        }
+        .control-group button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-right: 8px;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+        #contentDeviceStatus p strong {
+             color: var(--fb-text-light) !important;
+        }
+        /* Penyesuaian khusus untuk metrik AI dan Weight */
+        .status-message-value {
+             font-size: 1.8em;
+             font-weight: 700;
+             line-height: 1.2;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="sidebar">
+        <div class="logo-section">
+            <i class="fas fa-database" style="color: var(--fb-primary);"></i>
+            <span>Catheter Monitoring Console</span>
+        </div>
+
+        <div class="nav-heading">CONSOLE</div>
+        <div class="nav-item active" data-page="overview">
+            <i class="fas fa-tachometer-alt"></i> Project Overview
+        </div>
+        
+        <div class="nav-heading">CRITICAL ANALYTICS</div>
+        <div class="nav-item" data-page="ai_monitoring">
+            <i class="fas fa-microscope"></i> AI Detection Status
+        </div>
+        <div class="nav-item" data-page="weight_history">
+            <i class="fas fa-tint"></i> Urine Weight History
+        </div>
+        
+        <div class="nav-heading">CONTROL SYSTEM</div>
+        <div class="nav-item" data-page="alerts">
+            <i class="fas fa-sliders-h"></i> Alert Configuration
+        </div>
+        <div class="nav-item" data-page="device_status">
+            <i class="fas fa-server"></i> Device Status
+        </div>
+    </div>
+
+    <div class="content-area">
+        
+        <div class="top-bar">
+            <div class="page-title" id="mainTitle">Project Overview</div>
+            <div class="last-updated">Last updated: <span id="lastUpdatedTime">--</span></div>
+        </div>
+
+        <div id="contentOverview" class="page-content">
+            
+            <div class="card">
+                <div class="card-title">Project Mission & Goals</div>
+                <div class="project-description" style="line-height: 1.6; color: var(--fb-text-secondary);">
+                    <p style="color: var(--fb-text-light);">This system is your final project, aimed at enhancing patient safety and monitoring through IoT and AI Edge Impulse technology. We integrate two main modules:</p>
+                    
+                    <ul style="margin: 15px 0 15px 20px; list-style-type: disc; color: var(--fb-primary);">
+                        <li><strong style="color: var(--fb-yellow);">Camera Module (ESP32-CAM):</strong> Detection of **Normal Urine** vs. **Pyuria Urine** (Turbidity).</li>
+                        <li><strong style="color: var(--fb-yellow);">Weight Module (Arduino/ESP32):</strong> Measurement of urine weight to trigger alerts at thresholds of 500g, 1000g, and critical 1500g.</li>
+                    </ul>
+
+                    <p style="font-weight: 600; color: var(--fb-text-light);">Critical Goals:</p>
+                    <p style="color: var(--fb-red);">Ensure real-time notifications are sent to Telegram when Pyuria is detected or the critical weight limit of 1.5kg is reached, preventing infection risk and catheter overflow.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Group Members (Group 3)</div>
+                <div class="project-details-grid" style="margin-top: 10px;">
+                    <div class="team-member-card">
+                        <div class="member-photo-placeholder" style="background-color: var(--fb-primary);"><i class="fas fa-user-tie"></i></div>
+                        <div class="member-info"><h4>FARIZ AMIRUL BIN FAIZALL</h4><p>08BEU24F3038</p><p style="color: var(--fb-yellow);">Lead Hardware Integration</p></div>
+                    </div>
+                    <div class="team-member-card">
+                        <div class="member-photo-placeholder" style="background-color: var(--fb-green);"><i class="fas fa-user"></i></div>
+                        <div class="member-info"><h4>SAFIAH BINTI AZMI</h4><p>08BEU24F3037</p><p style="color: var(--fb-yellow);">Data Management & System Integration</p></div>
+                    </div>
+                    <div class="team-member-card">
+                        <div class="member-photo-placeholder" style="background-color: var(--fb-red);"><i class="fas fa-user-nurse"></i></div>
+                        <div class="member-info"><h4>NURFITRIDIYANI BINTI SAHAR RUDIN</h4><p>08BEU24F3046</p><p style="color: var(--fb-yellow);">AI Model Training & Validation</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="contentAiMonitoring" class="page-content" style="display:none;">
+            
+            <div class="metric-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 25px;">
+                <div class="metric-indicator" style="border-left: 4px solid var(--fb-red);">
+                    <div class="status-message-value" id="aiStatusText2">--</div>
+                    <div class="value-label">AI Status (Normal / Pyuria)</div>
+                </div>
+                <div class="metric-indicator" style="border-left: 4px solid var(--fb-yellow);">
+                    <div class="indicator-value" id="pyuriaConfidence">--%</div>
+                    <div class="value-label">Pyuria Detection Confidence</div>
+                </div>
+                                 <div class="metric-indicator" style="border-left: 4px solid var(--fb-primary);">
+                    <div class="indicator-value" id="totalAIDetections">--</div>
+                    <div class="value-label">Total AI Detections (Uptime)</div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-bottom: 25px;">
+                <div class="card-title">Pyuria Confidence Trend (Last 50 Readings)</div>
+                <div style="height: 250px; padding-top: 10px;">
+                    <canvas id="detectionTrendChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><i class="fas fa-history"></i> Recent System Events & Alerts</div>
+                <div style="overflow-x: auto;">
+                    <table class="log-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 10%;">Time (T+s)</th>
+                                <th style="width: 50%;">Event/Action</th>
+                                <th style="width: 20%;">Value/Confidence</th>
+                                <th style="width: 20%;">Buzzer Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detectionLogBody">
+                            <tr><td colspan="4" style="text-align: center; padding: 15px; color: var(--fb-text-secondary);">Awaiting live data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="contentWeightHistory" class="page-content" style="display:none;">
+            
+            <div class="metric-grid" style="grid-template-columns: repeat(3, 1fr);"> 
+                                  <div class="metric-indicator" style="border-left: 4px solid var(--fb-primary);">
+                    <div class="indicator-value" id="currentWeightHistory">--</div>
+                    <div class="value-label">Current Urine Weight (KG)</div>
+                </div>
+                <div class="metric-indicator" style="border-left: 4px solid var(--fb-yellow);">
+                    <div class="status-message-value" id="weightStatusMessage">--</div>
+                    <div class="value-label">Urine Status Message (Level)</div>
+                </div>
+                                <div class="metric-indicator" style="border-left: 4px solid var(--fb-green);">
+                    <div class="indicator-value" id="changeCountHistory">0</div>
+                    <div class="value-label">Total Catheter Changes Logged</div>
+                </div>
+                </div>
+
+            <div class="card">
+                <div class="card-title">Urine Weight Accumulation Trend (Last 50 Readings)</div>
+                <p style="color: var(--fb-text-secondary); margin-bottom: 15px;">This chart shows the accumulation of urine weight over time with the critical 1.5kg limit.</p>
+                <div style="height: 450px; padding-top: 10px;">
+                    <canvas id="detailedWeightChart"></canvas>
+                </div>
+                <p style="text-align: right; color: var(--fb-red); margin-top: 10px; font-size: 0.9em;">Red dashed line: Critical Limit (1.5kg)</p>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">Catheter Maintenance Log</div>
+                <div style="overflow-x: auto;">
+                    <table class="log-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 10%;">ID</th>
+                                <th style="width: 40%;">Date</th>
+                                <th style="width: 50%;">Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="changeLogBodyHistory">
+                            <tr><td colspan="3" style="text-align: center; padding: 10px; color: var(--fb-text-secondary);">No catheter change records found.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+        
+        <div id="contentAlerts" class="page-content" style="display:none;">
+            
+            <div class="control-group">
+                <h4><i class="fab fa-telegram-plane" style="color: var(--fb-primary);"></i> Telegram Push Notification Status (Server-Side)</h4>
+                <p style="color: var(--fb-text-secondary); font-size: 0.9em; margin-bottom: 10px;">The Flask API manages notifications. Token/Chat ID configuration is stored in PostgreSQL.</p>
+                
+                <p style="font-size: 0.8em; color: var(--fb-text-secondary); margin-top: 10px;">PG Configuration Status: <strong id="telegramStatus" style="color: var(--fb-green);">Token & Chat ID Configured in PostgreSQL</strong></p>
+            </div>
+            
+            <div class="control-group">
+                <h4><i class="fas fa-bell" style="color: var(--fb-yellow);"></i> Buzzer & Alert Status Control</h4>
+                <p style="color: var(--fb-text-secondary); margin-bottom: 10px;">Current Buzzer Status: <strong id="buzzerStatus" style="color: var(--fb-red);">--</strong></p>
+                <button style="background-color: var(--fb-green);" onclick="controlBuzzer('ON')"><i class="fas fa-volume-up"></i> ENABLE BUZZER</button>
+                <button style="background-color: var(--fb-red);" onclick="controlBuzzer('OFF')"><i class="fas fa-volume-off"></i> DISABLE BUZZER</button>
+                <button style="background-color: var(--fb-primary);" onclick="controlBuzzer('RESET')"><i class="fas fa-undo"></i> RESET ALERTS & BUZZER</button>
+                <p style="font-size: 0.8em; color: var(--fb-text-secondary); margin-top: 10px;">*RESET also resets alert spam status in PostgreSQL.</p>
+            </div>
+
+            <div class="control-group">
+                <h4><i class="fas fa-calendar-check" style="color: var(--fb-green);"></i> Catheter Maintenance Logging</h4>
+                <p style="color: var(--fb-text-secondary); margin-bottom: 10px;">Press this button to record a catheter change and **reset the simulated weight**.</p>
+                <button style="background-color: var(--fb-yellow); color: #202124;" onclick="logCatheterChange()"><i class="fas fa-plus"></i> LOG CATHETER CHANGE</button>
+                <p style="font-size: 0.8em; color: var(--fb-text-secondary); margin-top: 10px;">Total Changes: <strong id="controlChangeCount" style="color: var(--fb-yellow);">0</strong></p>
+            </div>
+
+            <div class="control-group" style="border-color: var(--fb-red);">
+                <h4><i class="fas fa-exclamation-triangle" style="color: var(--fb-red);"></i> Reset Data (DANGER ZONE - Sim)</h4>
+                <p style="color: var(--fb-text-secondary); margin-bottom: 10px;">Use only for testing. This will simulate deletion of **ALL** historical data in PostgreSQL.</p>
+                <button style="background-color: var(--fb-red); color: white;" onclick="resetAllData()"><i class="fas fa-trash-alt"></i> RESET ALL DATA</button>
+            </div>
+        </div>
+        
+        <div id="contentDeviceStatus" class="page-content" style="display:none;">
+            <div class="card">
+                <div class="card-title">Device & Network Status</div>
+                <div style="padding-top: 10px; line-height: 2;">
+                    <p>IP Address ESP32-CAM: <strong style="color: var(--fb-yellow);" id="ipAddress">192.168.x.xxx</strong></p>
+                    <p>API Flask Server: <strong style="color: var(--fb-green);">ONLINE (192.168.100.18:5000)</strong></p>
+                    <p>System Uptime: <strong style="color: var(--fb-primary);" id="deviceUptime">--</strong></p>
+                    <p>ESP32 Online: <strong style="color: var(--fb-green);">TRUE (Based on last log time)</strong></p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="toast" style="position: fixed; bottom: 30px; right: 30px; background: var(--fb-card); padding: 15px; border-radius: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.6); color: var(--fb-text-light); display: none; z-index: 1000; border-left: 4px solid var(--fb-green); align-items: center; gap: 10px;">
+        <i id="toastIcon" class="fas fa-check-circle" style="color: var(--fb-green); font-size: 1.5em;"></i>
+        <div>
+            <h4 id="toastTitle" style="color: var(--fb-green); margin: 0; font-size: 1em;">Success</h4>
+            <p id="toastMessage" style="color: var(--fb-text-secondary); margin: 0; font-size: 0.9em;"></p>
+        </div>
+    </div>
+
+
+    <script> 
+        // ====================================================
+        // CONFIGURATION & INITIALIZATION
+        // ====================================================
+        
+        // PASTIKAN IP INI BETUL (SEPADAN DENGAN TERMINAL FLASK)
+        const API_URL = "http://192.168.100.18:5000/api/v1"; 
+        const MAX_WEIGHT_KG = 1.5; 
+        
+        let detectionTrendChart, detailedWeightChart; 
+        let weeklyWeightChart, weeklyPyuriaChart; 
+        
+        let chartsInitialized = {
+            ai: false,
+            weight: false,
+            weekly_weight: false,
+            weekly_pyuria: false
+        };
+
+        let chartDataBuffer = { labels: [], pyuriaConfidence: [], weight: [] };
+        
+        // Utilities
+        const formatTime = (seconds) => {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = seconds % 60;
+            return `${h}h ${m}m ${s}s`;
+        };
+        const formatTimestamp = (ms) => {
+            const ms_int = parseInt(ms);
+            return new Date(ms_int).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+        
+        // DOM Mapping
+        const DOM = (id) => document.getElementById(id);
+        const navItems = document.querySelectorAll('.nav-item');
+        
+        // ====================================================
+        // NAVIGATION HELPER (Logik yang terbukti berfungsi)
+        // ====================================================
+
+        const pageToContentId = (pageId) => {
+          // Logik ini memadankan ID dari 'ai_monitoring' ke 'contentAiMonitoring'
+          return 'content' + pageId
+            .split('_')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join('');
+        };
+
+
+        // ====================================================
+        // CHART INITIALIZATION (INIT ON DEMAND)
+        // ====================================================
+
+        const initCharts = (pageId) => {
+             Chart.register(window['chartjs-plugin-annotation']); 
+
+            // FIX 3: Guna nilai literal warna yang stabil untuk tooltip
+            const defaultOptions = {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { 
+                    legend: { display: false }, 
+                    tooltip: { bodyColor: '#202124', titleColor: '#202124', backgroundColor: '#F0F0F0', borderColor: '#3c4043', borderWidth: 1 } 
+                },
+                scales: {
+                    y: { ticks: { color: 'var(--chart-line)' }, grid: { color: 'var(--chart-grid-line)' }, title: { display: false } },
+                    x: { ticks: { color: 'var(--chart-line)' }, grid: { display: false } }
+                }
+            };
+            
+            if (pageId === 'ai_monitoring') {
+                if (!detectionTrendChart) {
+                     if (DOM('detectionTrendChart')) {
+                        detectionTrendChart = new Chart(DOM('detectionTrendChart').getContext('2d'), {
+                            type: 'line',
+                            data: { labels: chartDataBuffer.labels, datasets: [{ label: 'Pyuria Confidence', data: chartDataBuffer.pyuriaConfidence, borderColor: 'var(--fb-yellow)', backgroundColor: 'rgba(251, 188, 4, 0.2)', tension: 0.3, pointRadius: 2, pointBackgroundColor: 'var(--fb-yellow)' }] },
+                            options: defaultOptions
+                        });
+                        chartsInitialized.ai = true;
+                    }
+                }
+            }
+            
+            if (pageId === 'weight_history') {
+                if (!detailedWeightChart) {
+                    if (DOM('detailedWeightChart')) {
+                        detailedWeightChart = new Chart(DOM('detailedWeightChart').getContext('2d'), {
+                            type: 'line',
+                            data: { labels: chartDataBuffer.labels, datasets: [{ label: 'Weight (kg)', data: chartDataBuffer.weight, borderColor: 'var(--fb-primary)', backgroundColor: 'rgba(26, 115, 232, 0.1)', tension: 0.2, pointRadius: 4, pointBackgroundColor: 'var(--fb-primary)' }] },
+                            // KOD SINTAKSIS YANG DIBETULKAN UNTUK MENGELAKKAN ERROR:
+                            options: { 
+                                ...defaultOptions, 
+                                plugins: { 
+                                    ...defaultOptions.plugins, 
+                                    annotation: { 
+                                        annotations: { 
+                                            criticalLimit: { 
+                                                type: 'line', 
+                                                yMin: MAX_WEIGHT_KG, 
+                                                yMax: MAX_WEIGHT_KG, 
+                                                borderColor: 'var(--fb-red)', 
+                                                borderWidth: 3, 
+                                                borderDash: [8, 4], 
+                                                label: { 
+                                                    content: 'CRITICAL LIMIT (1.5 KG)', 
+                                                    enabled: true, 
+                                                    position: 'start', 
+                                                    backgroundColor: 'var(--fb-red)' 
+                                                } 
+                                            } 
+                                        } 
+                                    } 
+                                }, 
+                                scales: { 
+                                    ...defaultOptions.scales, 
+                                    y: { 
+                                        ...defaultOptions.scales.y, 
+                                        min: 0, 
+                                        max: MAX_WEIGHT_KG * 1.1, 
+                                        suggestedMax: MAX_WEIGHT_KG * 1.05, 
+                                        border: { color: 'var(--chart-grid-line)' }, 
+                                        title: { display: true, text: 'Urine Weight (KG)', color: 'var(--chart-line)' }, 
+                                        ticks: { color: 'var(--chart-line)' }, 
+                                        grid: { color: 'var(--chart-grid-line)' } 
+                                    }, 
+                                    x: { 
+                                        ...defaultOptions.scales.x, 
+                                        ticks: { color: 'var(--chart-line)' } 
+                                    } 
+                                } 
+                            }
+                        });
+                         chartsInitialized.weight = true;
+                    }
+                }
+            }
+        };
+
+        const switchPage = (pageId) => {
+            console.log('Switching to:', pageId); // Untuk debug
+            
+            // 1. Hide all pages
+            document.querySelectorAll('.page-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // 2. Show selected page menggunakan logik CamelCase yang terbukti
+            const contentId = pageToContentId(pageId);
+            const activeContent = DOM(contentId); 
+            
+            if (!activeContent) {
+                 console.error('CONTENT NOT FOUND:', contentId);
+                 // Stop execution if content is not found
+                 return;
+            }
+
+            activeContent.style.display = 'block';
+            
+            // 3. Update Title
+            if(DOM('mainTitle')) {
+                DOM('mainTitle').textContent = pageId.replace(/_/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            }
+
+            // 4. Update sidebar active state
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('data-page') === pageId) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // 5. INIT CHART ON DEMAND & CALL DATA
+            if (pageId === 'weight_history') {
+                if (!chartsInitialized.weight) {
+                    initCharts(pageId);
+                }
+                fetchDataFromAPI(); 
+            }
+            if (pageId === 'ai_monitoring') {
+                if (!chartsInitialized.ai) {
+                    initCharts(pageId);
+                }
+                fetchDataFromAPI();
+            }
+
+            // 6. Force resize chart
+            setTimeout(() => {
+                if (detectionTrendChart) detectionTrendChart.resize();
+                if (detailedWeightChart) detailedWeightChart.resize();
+            }, 100); 
+        };
+        
+
+        // ====================================================
+        // DATA FETCHERS (FLASK API)
+        // ====================================================
+
+        const fetchWeeklyStats = async () => {
+             return; 
+        }
+
+        const fetchDataFromAPI = async () => {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 8000); 
+                
+                const response = await fetch(API_URL + '/status', { signal: controller.signal });
+                clearTimeout(timeoutId);
+                
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                const data = await response.json(); 
+                
+                if (data.status === "error") throw new Error(data.message);
+                
+                const metrics = data.current_metrics;
+                const history = data.weight_history ? data.weight_history.reverse() : []; 
+                const changeLogs = data.change_logs;
+
+                // --- UPDATE METRICS & STATUS ---
+                const formattedWeight = metrics.weight_kg ? metrics.weight_kg.toFixed(2) : '--';
+                
+                // Metrik Berat & Change Count (Sentiasa Update)
+                if (DOM('currentWeightHistory')) DOM('currentWeightHistory').textContent = formattedWeight;
+                if (DOM('changeCountHistory')) DOM('changeCountHistory').textContent = metrics.change_count || 0; 
+                if (DOM('controlChangeCount')) DOM('controlChangeCount').textContent = metrics.change_count || 0; 
+
+                // Pyuria Confidence
+                const pyuriaConf = metrics.pyuria_confidence ? (metrics.pyuria_confidence * 100).toFixed(1) : '--';
+                
+                if (DOM('pyuriaConfidence')) {
+                    DOM('pyuriaConfidence').textContent = pyuriaConf + '%';
+                    DOM('pyuriaConfidence').style.color = metrics.pyuria_confidence > 0.70 ? 'var(--fb-red)' : 'var(--fb-green)';
+                }
+                
+                // Buzzer Status
+                if (DOM('buzzerStatus')) {
+                    DOM('buzzerStatus').textContent = metrics.buzzer_status || 'OFF';
+                    DOM('buzzerStatus').style.color = metrics.buzzer_status === 'ON' ? 'var(--fb-red)' : 'var(--fb-green)';
+                }
+                
+                // Urine Status Text
+                let statusText = metrics.status_message || 'UNKNOWN';
+                
+                let pyuriaStatusText = metrics.pyuria_status ? "PYURIA ALERT" : "NORMAL";
+                let pyuriaStatusColor = metrics.pyuria_status ? 'var(--fb-red)' : 'var(--fb-green)';
+
+                // 1. Urine Weight History: Mesej Status Weight
+                if (DOM('weightStatusMessage')) {
+                     DOM('weightStatusMessage').textContent = statusText; 
+                     // Guna warna dari alert_level (untuk amaran 1000/1500ml)
+                     if (metrics.alert_level === 'LEVEL_1500_DANGER') {
+                         DOM('weightStatusMessage').style.color = 'var(--fb-red)';
+                     } else if (metrics.alert_level === 'LEVEL_1000_REACHED') {
+                         DOM('weightStatusMessage').style.color = 'var(--fb-yellow)';
+                     } else {
+                         DOM('weightStatusMessage').style.color = 'var(--fb-green)';
+                     }
+                }
+                
+                // 2. AI Detection Status: Status Pyuria / Normal SAHAJA
+                if (DOM('aiStatusText2')) { 
+                    DOM('aiStatusText2').textContent = pyuriaStatusText; 
+                    DOM('aiStatusText2').style.color = pyuriaStatusColor; 
+                }
+                
+                // Total AI Detections
+                if (DOM('totalAIDetections')) {
+                    DOM('totalAIDetections').textContent = history.length || 0;
+                }
+                
+                // Update Latest Data Time (untuk sidebar/top bar)
+                if (DOM('lastUpdatedTime') && history.length > 0) {
+                     DOM('lastUpdatedTime').textContent = formatTimestamp(history[0].timestamp);
+                } else if (DOM('lastUpdatedTime')) {
+                     DOM('lastUpdatedTime').textContent = '--';
+                }
+
+                // --- UPDATE CHARTS & LOGS (Logik Tahan Lasak) ---
+                
+                if (history.length >= 2) {
+                    chartDataBuffer.labels = history.map(h => formatTimestamp(h.timestamp));
+                    chartDataBuffer.weight = history.map(h => h.weight);
+                    chartDataBuffer.pyuriaConfidence = history.map(h => (h.pyuria_conf * 100));
+
+                    if (detectionTrendChart) detectionTrendChart.update();
+                    if (detailedWeightChart) detailedWeightChart.update();
+                    
+                } else {
+                    console.warn("Not enough data to draw charts (need >= 2 history records).");
+                    if (detailedWeightChart) { detailedWeightChart.data.labels = []; detailedWeightChart.data.datasets[0].data = []; detailedWeightChart.update(); }
+                    if (detectionTrendChart) { detectionTrendChart.data.labels = []; detectionTrendChart.data.datasets[0].data = []; detailedWeightChart.update(); }
+                }
+                
+                updateChangeLog(changeLogs, DOM('changeLogBodyHistory'));
+
+            } catch (error) {
+                console.error("Failed to fetch status data from Flask API:", error);
+            }
+        }
+
+        const updateChangeLog = (changeLogs, targetElement) => {
+            let logHtml = '';
+            
+            changeLogs.forEach(log => {
+                 logHtml += `
+                    <tr>
+                        <td style="color: var(--fb-primary);">${log.id}</td>
+                        <td style="color: var(--fb-text-light);">${new Date(log.timestamp).toLocaleDateString()}</td>
+                        <td style="color: var(--fb-text-light);">${formatTimestamp(new Date(log.timestamp).getTime())}</td>
+                    </tr>
+                `;
+            });
+
+            if (targetElement) {
+                targetElement.innerHTML = logHtml.length > 0 ? logHtml : '<tr><td colspan="3" style="text-align: center; padding: 10px; color: var(--fb-text-secondary);">No catheter change records found.</td></tr>';
+            }
+        }
+
+        // ====================================================
+        // DEVICE CONTROL FUNCTIONS
+        // ====================================================
+
+        window.controlBuzzer = async (command) => {
+            const response = await fetch(API_URL + '/control_buzzer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ command: command })
+            });
+            
+            if (response.ok) {
+                showToast('Control Sent', `Buzzer command: ${command} sent to API.`, command === 'ON' ? 'danger' : 'success');
+                fetchDataFromAPI(); 
+            } else {
+                showToast('API Error', `Failed to send command ${command}.`, 'danger');
+            }
+        };
+
+        window.logCatheterChange = async () => {
+            const response = await fetch(API_URL + '/log_change', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({})
+            });
+            
+            if (response.ok) {
+                showToast('Log Sent', `Catheter change logged and weight reset.`, 'info');
+                fetchDataFromAPI(); 
+            } else {
+                showToast('API Error', `Failed to log catheter change.`, 'danger');
+            }
+        };
+        
+        // Simulated functions
+        window.resetAllData = () => { alert("Simulated: DANGER ZONE data would be deleted."); showToast('Simulated', 'RESET ALL DATA command sent.', 'danger'); };
+
+
+        // ====================================================
+        // TOAST NOTIFICATION
+        // ====================================================
+        
+        window.showToast = (title, message, type = 'info', duration = 4000) => {
+            const toast = DOM('toast');
+            const toastTitle = DOM('toastTitle');
+            const toastMessage = DOM('toastMessage');
+            const toastIcon = DOM('toastIcon');
+
+            let color = 'var(--fb-primary)';
+            let iconClass = 'fas fa-info-circle';
+
+            if (type === 'success') { color = 'var(--fb-green)'; iconClass = 'fas fa-check-circle'; }
+            else if (type === 'danger') { color = 'var(--fb-red)'; iconClass = 'fas fa-exclamation-triangle'; }
+            else if (type === 'info') { color = 'var(--fb-yellow)'; iconClass = 'fas fa-exclamation-circle'; }
+
+            toast.style.borderLeftColor = color;
+            toastTitle.style.color = color;
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+            toastIcon.className = iconClass;
+            toastIcon.style.color = color;
+
+            toast.style.display = 'flex';
+            toast.style.opacity = '1';
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.style.display = 'none', 500);
+            }, duration);
+        };
+
+        // ====================================================
+        // INITIAL CALLS (DOCUMENT LOAD)
+        // ====================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // 1. Sidebar Navigation Listener
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const pageId = item.getAttribute('data-page');
+                    switchPage(pageId);
+                });
+            });
+            
+            switchPage('overview'); 
+            
+            // 2. Initial Data Fetch
+            fetchDataFromAPI(); 
+            
+            // 3. Set Update Intervals
+            setInterval(fetchDataFromAPI, 3000); 
+            
+            // 4. Start Clock
+            setInterval(() => {
+                if(DOM('lastUpdatedTime')) DOM('lastUpdatedTime').textContent = new Date().toLocaleTimeString();
+            }, 1000);
+        });
+
+    </script>
+</body>
+</html>
