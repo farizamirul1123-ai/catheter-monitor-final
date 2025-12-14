@@ -45,6 +45,10 @@
             padding: 10px 0;
             box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
             flex-shrink: 0;
+            position: fixed; /* Penting untuk desktop/mobile */
+            height: 100%; /* Penting untuk mobile */
+            z-index: 999; /* Penting untuk mobile */
+            transition: transform 0.3s ease-in-out; /* Untuk animasi mobile */
         }
         .logo-section {
             padding: 15px 25px;
@@ -82,13 +86,75 @@
             color: var(--fb-text-secondary);
             text-transform: uppercase;
         }
+        
+        /* --- START OF NEW MOBILE STYLES --- */
+        
+        /* Butang Hamburger (Sembunyi di Desktop) */
+        #sidebarToggle {
+            display: none;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            background: var(--fb-nav);
+            color: var(--fb-text-light);
+            border: 1px solid #3c4043;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 1.2em;
+            border-radius: 4px;
+        }
 
         /* --- CONTENT & CARDS (Dikekalkan) --- */
         .content-area {
             flex-grow: 1;
             padding: 30px;
             overflow-y: auto;
+            /* Tambah margin kiri yang sama dengan lebar sidebar */
+            margin-left: 280px; 
+            width: calc(100% - 280px); /* Lebar sisa */
         }
+        
+        /* MEDIA QUERY: Peraturan untuk skrin mudah alih */
+        @media (max-width: 768px) {
+            /* 1. Sidebar (Sembunyi secara lalai) */
+            .sidebar {
+                transform: translateX(-280px); /* Alihkan ke luar skrin */
+                box-shadow: none;
+            }
+
+            /* 2. Kelas 'active' untuk menunjukkan menu */
+            .sidebar.active {
+                transform: translateX(0); /* Alihkan masuk ke skrin */
+            }
+
+            /* 3. Kandungan Utama (Guna lebar penuh) */
+            .content-area {
+                margin-left: 0; /* Buang margin kiri */
+                width: 100%;
+                padding: 10px; /* Kurangkan padding untuk telefon */
+                padding-top: 60px; /* Beri ruang untuk butang toggle */
+            }
+            
+            /* 4. Tunjukkan butang di telefon */
+            #sidebarToggle {
+                display: block;
+            }
+
+            /* Kurangkan saiz grid metrik di telefon */
+            .metric-grid {
+                grid-template-columns: 1fr !important;
+                gap: 15px;
+            }
+            .project-details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* --- END OF NEW MOBILE STYLES --- */
+
+
+        /* ... [CSS Sedia Ada Lain Dikekalkan] ... */
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -228,7 +294,9 @@
 </head>
 <body>
     
-    <div class="sidebar">
+    <button id="sidebarToggle">☰</button>
+
+    <div class="sidebar" id="sidebar">
         <div class="logo-section">
             <i class="fas fa-database" style="color: var(--fb-primary);"></i>
             <span>Catheter Monitoring Console</span>
@@ -310,10 +378,10 @@
                     <div class="indicator-value" id="pyuriaConfidence">--%</div>
                     <div class="value-label">Pyuria Detection Confidence</div>
                 </div>
-                                 <div class="metric-indicator" style="border-left: 4px solid var(--fb-primary);">
-                    <div class="indicator-value" id="totalAIDetections">--</div>
-                    <div class="value-label">Total AI Detections (Uptime)</div>
-                </div>
+                                             <div class="metric-indicator" style="border-left: 4px solid var(--fb-primary);">
+                    <div class="indicator-value" id="totalAIDetections">--</div>
+                    <div class="value-label">Total AI Detections (Uptime)</div>
+                </div>
             </div>
 
             <div class="card" style="margin-bottom: 25px;">
@@ -346,19 +414,19 @@
         <div id="contentWeightHistory" class="page-content" style="display:none;">
             
             <div class="metric-grid" style="grid-template-columns: repeat(3, 1fr);"> 
-                                  <div class="metric-indicator" style="border-left: 4px solid var(--fb-primary);">
-                    <div class="indicator-value" id="currentWeightHistory">--</div>
-                    <div class="value-label">Current Urine Weight (KG)</div>
-                </div>
+                                                    <div class="metric-indicator" style="border-left: 4px solid var(--fb-primary);">
+                    <div class="indicator-value" id="currentWeightHistory">--</div>
+                    <div class="value-label">Current Urine Weight (KG)</div>
+                </div>
                 <div class="metric-indicator" style="border-left: 4px solid var(--fb-yellow);">
                     <div class="status-message-value" id="weightStatusMessage">--</div>
                     <div class="value-label">Urine Status Message (Level)</div>
                 </div>
-                                <div class="metric-indicator" style="border-left: 4px solid var(--fb-green);">
-                    <div class="indicator-value" id="changeCountHistory">0</div>
-                    <div class="value-label">Total Catheter Changes Logged</div>
-                </div>
-                </div>
+                                                <div class="metric-indicator" style="border-left: 4px solid var(--fb-green);">
+                    <div class="indicator-value" id="changeCountHistory">0</div>
+                    <div class="value-label">Total Catheter Changes Logged</div>
+                </div>
+                </div>
 
             <div class="card">
                 <div class="card-title">Urine Weight Accumulation Trend (Last 50 Readings)</div>
@@ -482,6 +550,18 @@
         const navItems = document.querySelectorAll('.nav-item');
         
         // ====================================================
+        // START OF NEW JAVASCRIPT FOR SIDEBAR TOGGLE
+        // ====================================================
+        const sidebar = DOM('sidebar'); // Ambil elemen sidebar
+        const sidebarToggle = DOM('sidebarToggle'); // Ambil elemen butang toggle
+
+        const closeSidebar = () => {
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('active');
+            }
+        };
+
+        // ====================================================
         // NAVIGATION HELPER (Logik yang terbukti berfungsi)
         // ====================================================
 
@@ -516,8 +596,8 @@
             
             if (pageId === 'ai_monitoring') {
                 if (!detectionTrendChart) {
-                     if (DOM('detectionTrendChart')) {
-                        detectionTrendChart = new Chart(DOM('detectionTrendChart').getContext('2d'), {
+                    if (DOM('detectionTrendChart')) {
+                         detectionTrendChart = new Chart(DOM('detectionTrendChart').getContext('2d'), {
                             type: 'line',
                             data: { labels: chartDataBuffer.labels, datasets: [{ label: 'Pyuria Confidence', data: chartDataBuffer.pyuriaConfidence, borderColor: 'var(--fb-yellow)', backgroundColor: 'rgba(251, 188, 4, 0.2)', tension: 0.3, pointRadius: 2, pointBackgroundColor: 'var(--fb-yellow)' }] },
                             options: defaultOptions
@@ -615,7 +695,10 @@
                 }
             });
             
-            // 5. INIT CHART ON DEMAND & CALL DATA
+            // 5. TUTUP SIDEBAR APABILA PAGE BERTUKAR (untuk mobile)
+            closeSidebar();
+
+            // 6. INIT CHART ON DEMAND & CALL DATA
             if (pageId === 'weight_history') {
                 if (!chartsInitialized.weight) {
                     initCharts(pageId);
@@ -629,7 +712,7 @@
                 fetchDataFromAPI();
             }
 
-            // 6. Force resize chart
+            // 7. Force resize chart
             setTimeout(() => {
                 if (detectionTrendChart) detectionTrendChart.resize();
                 if (detailedWeightChart) detailedWeightChart.resize();
@@ -668,7 +751,7 @@
                 
                 // Metrik Berat & Change Count (Sentiasa Update)
                 if (DOM('currentWeightHistory')) DOM('currentWeightHistory').textContent = formattedWeight;
-                if (DOM('changeCountHistory')) DOM('changeCountHistory').textContent = metrics.change_count || 0; 
+                if (DOM('changeCountHistory')) DOM('currentWeightHistory').textContent = metrics.change_count || 0; 
                 if (DOM('controlChangeCount')) DOM('controlChangeCount').textContent = metrics.change_count || 0; 
 
                 // Pyuria Confidence
@@ -847,15 +930,20 @@
                 });
             });
             
+            // 2. TOGGLE BUTTON LISTENER (NEW)
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+            
             switchPage('overview'); 
             
-            // 2. Initial Data Fetch
+            // 3. Initial Data Fetch
             fetchDataFromAPI(); 
             
-            // 3. Set Update Intervals
+            // 4. Set Update Intervals
             setInterval(fetchDataFromAPI, 3000); 
             
-            // 4. Start Clock
+            // 5. Start Clock
             setInterval(() => {
                 if(DOM('lastUpdatedTime')) DOM('lastUpdatedTime').textContent = new Date().toLocaleTimeString();
             }, 1000);
