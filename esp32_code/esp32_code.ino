@@ -3,8 +3,8 @@
 #include <ArduinoJson.h> // *** WAJIB: Pastikan anda sudah install library ini ***
 
 // ===== WiFi Credentials (GANTI INI) =====
-#define WIFI_SSID "@Faizall Ghazali"
-#define WIFI_PASSWORD "nisa100316"
+#define WIFI_SSID "Fariz’s iPhone"
+#define WIFI_PASSWORD "09876555"
 
 // ===== Flask API Server URL (GANTI IP INI DENGAN IP ANDA) =====
 // Pastikan ini sepadan dengan IP yang dipaparkan oleh Flask Server

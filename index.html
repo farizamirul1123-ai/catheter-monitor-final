@@ -235,6 +235,13 @@
             color: var(--fb-text-light);
             flex-shrink: 0;
             border: 2px solid var(--fb-primary);
+            overflow: hidden;
+        }
+
+        .member-photo-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         
         .member-info h4 { 
@@ -394,9 +401,6 @@
         </div>
         
         <div class="nav-heading">CRITICAL ANALYTICS</div>
-        <div class="nav-item" data-page="ai_monitoring">
-            <i class="fas fa-microscope"></i> AI Detection Status
-        </div>
         <div class="nav-item" data-page="weight_history">
             <i class="fas fa-tint"></i> Urine Weight History
         </div>
@@ -428,26 +432,40 @@
         <!-- OVERVIEW PAGE -->
         <div id="contentOverview" class="page-content">
             
-            <div class="card">
-                <div class="card-title">Project Mission & Goals</div>
-                <div class="project-description">
-                    <p style="color: var(--fb-text-light);">This system is your final project, aimed at enhancing patient safety and monitoring through IoT and AI Edge Impulse technology. We integrate two main modules:</p>
-                    
-                    <ul>
-                        <li><strong style="color: var(--fb-yellow);">Camera Module (ESP32-CAM):</strong> Detection of **Normal Urine** vs. **Pyuria Urine** (Turbidity).</li>
-                        <li><strong style="color: var(--fb-yellow);">Weight Module (Arduino/ESP32):</strong> Measurement of urine weight to trigger alerts at thresholds of 500g, 1000g, and critical 1500g.</li>
-                    </ul>
+<div class="card">
+    <div class="card-title">Project Mission & Goals</div>
+    <div class="project-description">
+        <p style="color: var(--fb-text-light);">
+            This project focuses on developing an IoT-based catheter monitoring system to enhance patient safety and reduce the risk of catheter overflow. 
+            The system continuously monitors urine volume using a load cell sensor and sends real-time data to an IoT platform for remote monitoring.
+        </p>
+        
+        <ul>
+            <li>
+                <strong style="color: var(--fb-yellow);">Weight Monitoring Module (Arduino & ESP32):</strong>
+                Measures the weight of urine collected in the catheter bag in real time.
+            </li>
+            <li>
+                <strong style="color: var(--fb-yellow);">Alert System:</strong>
+                Activates a buzzer and sends notifications when preset weight thresholds are reached.
+            </li>
+        </ul>
 
-                    <p style="font-weight: 600; color: var(--fb-text-light);">Critical Goals:</p>
-                    <p style="color: var(--fb-red);">Ensure real-time notifications are sent to Telegram when Pyuria is detected or the critical weight limit of 1.5kg is reached, preventing infection risk and catheter overflow.</p>
-                </div>
-            </div>
+        <p style="font-weight: 600; color: var(--fb-text-light);">Critical Goals:</p>
+        <p style="color: var(--fb-red);">
+            To provide timely alerts when the catheter bag reaches critical weight levels (e.g. 500g, 1000g, and 1500g), 
+            helping caregivers take immediate action to prevent overflow and improve patient care.
+        </p>
+    </div>
+</div>
 
-            <div class="card">
+        <div class="card">
                 <div class="card-title">Group Members (Group 3)</div>
                 <div class="project-details-grid" style="margin-top: 10px;">
                     <div class="team-member-card">
-                        <div class="member-photo-placeholder" style="background-color: var(--fb-primary);"><i class="fas fa-user-tie"></i></div>
+                        <div class="member-photo-placeholder" style="background-color: var(--fb-primary);">
+                            <img src="fariz.jpg" alt="Fariz Amirul">
+                        </div>
                         <div class="member-info">
                             <h4>FARIZ AMIRUL BIN FAIZALL</h4>
                             <p>08BEU24F3038</p>
@@ -455,7 +473,9 @@
                         </div>
                     </div>
                     <div class="team-member-card">
-                        <div class="member-photo-placeholder" style="background-color: var(--fb-green);"><i class="fas fa-user"></i></div>
+                        <div class="member-photo-placeholder" style="background-color: var(--fb-green);">
+                            <img src="safiah.jpg" alt="Safiah Azmi">
+                        </div>
                         <div class="member-info">
                             <h4>SAFIAH BINTI AZMI</h4>
                             <p>08BEU24F3037</p>
@@ -463,58 +483,15 @@
                         </div>
                     </div>
                     <div class="team-member-card">
-                        <div class="member-photo-placeholder" style="background-color: var(--fb-red);"><i class="fas fa-user-nurse"></i></div>
+                        <div class="member-photo-placeholder" style="background-color: var(--fb-red);">
+                            <img src="nurfitri.jpg" alt="Nurfitridiyani Sahar Rudin">
+                        </div>
                         <div class="member-info">
                             <h4>NURFITRIDIYANI BINTI SAHAR RUDIN</h4>
                             <p>08BEU24F3046</p>
                             <p style="color: var(--fb-yellow);">AI Model Training & Validation</p>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- AI MONITORING PAGE -->
-        <div id="contentAiMonitoring" class="page-content" style="display:none;">
-            
-            <div class="metric-grid">
-                <div class="metric-indicator" style="border-left: 4px solid var(--fb-red);">
-                    <div class="status-message-value" id="aiStatusText2">--</div>
-                    <div class="value-label">AI Status (Normal / Pyuria)</div>
-                </div>
-                <div class="metric-indicator" style="border-left: 4px solid var(--fb-yellow);">
-                    <div class="indicator-value" id="pyuriaConfidence">--%</div>
-                    <div class="value-label">Pyuria Detection Confidence</div>
-                </div>
-                <div class="metric-indicator" style="border-left: 4px solid var(--fb-primary);">
-                    <div class="indicator-value" id="totalAIDetections">--</div>
-                    <div class="value-label">Total AI Detections (Uptime)</div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-title">Pyuria Confidence Trend (Last 50 Readings)</div>
-                <div style="height: 250px; padding-top: 10px;">
-                    <canvas id="detectionTrendChart"></canvas>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-title"><i class="fas fa-history"></i> Recent System Events & Alerts</div>
-                <div style="overflow-x: auto;">
-                    <table class="log-table">
-                        <thead>
-                            <tr>
-                                <th>Time</th>
-                                <th>Event/Action</th>
-                                <th>Value/Confidence</th>
-                                <th>Buzzer Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="detectionLogBody">
-                            <tr><td colspan="4" style="text-align: center; padding: 15px; color: var(--fb-text-secondary);">Awaiting live data...</td></tr>
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </div>
@@ -679,23 +656,16 @@
 
 
     <script> 
-        // ====================================================
-        // GLOBAL CONFIGURATION
-        // ====================================================
         const API_URL = "https://catheter-monitor-final.onrender.com/api/v1"; 
         const MAX_WEIGHT_KG = 1.5; 
-        const FETCH_INTERVAL = 3000; // 3 seconds
+        const FETCH_INTERVAL = 3000;
         
-        let detectionTrendChart = null;
         let detailedWeightChart = null;
-        let chartsInitialized = { ai: false, weight: false };
-        let chartDataBuffer = { labels: [], pyuriaConfidence: [], weight: [] };
+        let chartsInitialized = { weight: false };
+        let chartDataBuffer = { labels: [], weight: [] };
         let apiConnected = false;
         let fetchIntervalId = null;
         
-        // ====================================================
-        // DEBUG LOGGING FUNCTIONS
-        // ====================================================
         const addDebugLog = (message, type = 'info') => {
             const debugLogs = document.getElementById('debugLogs');
             if (!debugLogs) return;
@@ -710,7 +680,6 @@
             debugLogs.appendChild(logEntry);
             debugLogs.scrollTop = debugLogs.scrollHeight;
             
-            // Keep only last 100 logs
             const logs = debugLogs.querySelectorAll('.debug-log');
             if (logs.length > 100) {
                 logs[0].remove();
@@ -747,7 +716,6 @@
                     const data = await response.json();
                     addDebugLog('✓ API Connection Successful!', 'success');
                     addDebugLog(`→ Weight from API: ${data.current_metrics?.weight_kg ?? 'NULL'} kg`, data.current_metrics?.weight_kg ? 'success' : 'warning');
-                    addDebugLog(`→ Pyuria Confidence: ${data.current_metrics?.pyuria_confidence ?? 'NULL'}`, 'info');
                     addDebugLog(`→ Buzzer Status: ${data.current_metrics?.buzzer_status || 'NULL'}`, 'info');
                     addDebugLog(`→ History entries: ${data.weight_history?.length || 0}`, 'info');
                     addDebugLog(`→ Change logs: ${data.change_logs?.length || 0}`, 'info');
@@ -796,9 +764,6 @@
             }
         };
         
-        // ====================================================
-        // UTILITY FUNCTIONS
-        // ====================================================
         const formatTime = (seconds) => {
             const h = Math.floor(seconds / 3600);
             const m = Math.floor((seconds % 3600) / 60);
@@ -817,9 +782,6 @@
         
         const DOM = (id) => document.getElementById(id);
         
-        // ====================================================
-        // NAVIGATION & UI
-        // ====================================================
         const navItems = document.querySelectorAll('.nav-item');
         const sidebar = DOM('sidebar');
         const sidebarToggle = DOM('sidebarToggle');
@@ -837,9 +799,6 @@
                 .join('');
         };
 
-        // ====================================================
-        // CHART INITIALIZATION
-        // ====================================================
         const initCharts = (pageId) => {
             if (typeof Chart === 'undefined') {
                 addDebugLog('Chart.js not loaded yet', 'warning');
@@ -874,30 +833,6 @@
                 }
             };
             
-            if (pageId === 'ai_monitoring' && !chartsInitialized.ai) {
-                const canvas = DOM('detectionTrendChart');
-                if (canvas) {
-                    detectionTrendChart = new Chart(canvas.getContext('2d'), {
-                        type: 'line',
-                        data: { 
-                            labels: chartDataBuffer.labels, 
-                            datasets: [{ 
-                                label: 'Pyuria Confidence', 
-                                data: chartDataBuffer.pyuriaConfidence, 
-                                borderColor: 'var(--fb-yellow)', 
-                                backgroundColor: 'rgba(251, 188, 4, 0.2)', 
-                                tension: 0.3, 
-                                pointRadius: 2, 
-                                pointBackgroundColor: 'var(--fb-yellow)' 
-                            }] 
-                        },
-                        options: defaultOptions
-                    });
-                    chartsInitialized.ai = true;
-                    addDebugLog('AI monitoring chart initialized', 'success');
-                }
-            }
-            
             if (pageId === 'weight_history' && !chartsInitialized.weight) {
                 const canvas = DOM('detailedWeightChart');
                 if (canvas) {
@@ -925,14 +860,15 @@
                                             type: 'line', 
                                             yMin: MAX_WEIGHT_KG, 
                                             yMax: MAX_WEIGHT_KG, 
-                                            borderColor: 'var(--fb-red)', 
+                                            borderColor: '#FFFFFF', 
                                             borderWidth: 3, 
                                             borderDash: [8, 4], 
                                             label: { 
                                                 content: 'CRITICAL LIMIT (1.5 KG)', 
                                                 enabled: true, 
                                                 position: 'start', 
-                                                backgroundColor: 'var(--fb-red)' 
+                                                backgroundColor: 'var(--fb-red)',
+                                                color: '#FFFFFF'
                                             } 
                                         } 
                                     } 
@@ -970,12 +906,10 @@
         const switchPage = (pageId) => {
             addDebugLog(`Switching to page: ${pageId}`, 'info');
             
-            // Hide all pages
             document.querySelectorAll('.page-content').forEach(content => {
                 content.style.display = 'none';
             });
             
-            // Show selected page
             const contentId = pageToContentId(pageId);
             const activeContent = DOM(contentId); 
             
@@ -986,7 +920,6 @@
 
             activeContent.style.display = 'block';
             
-            // Update title
             if (DOM('mainTitle')) {
                 DOM('mainTitle').textContent = pageId
                     .replace(/_/g, ' ')
@@ -995,7 +928,6 @@
                     .join(' ');
             }
 
-            // Update sidebar active state
             navItems.forEach(item => {
                 item.classList.remove('active');
                 if (item.getAttribute('data-page') === pageId) {
@@ -1005,24 +937,15 @@
             
             closeSidebar();
 
-            // Initialize charts if needed
             if (pageId === 'weight_history' && !chartsInitialized.weight) {
                 initCharts(pageId);
             }
-            if (pageId === 'ai_monitoring' && !chartsInitialized.ai) {
-                initCharts(pageId);
-            }
 
-            // Resize charts
             setTimeout(() => {
-                if (detectionTrendChart) detectionTrendChart.resize();
                 if (detailedWeightChart) detailedWeightChart.resize();
             }, 100); 
         };
 
-        // ====================================================
-        // DATA FETCHING FROM API
-        // ====================================================
         const fetchDataFromAPI = async () => {
             try {
                 const controller = new AbortController();
@@ -1040,7 +963,6 @@
 
                 const data = await response.json();
                 
-                // Update raw JSON display
                 if (DOM('rawAPIData')) {
                     DOM('rawAPIData').textContent = JSON.stringify(data, null, 2);
                 }
@@ -1056,10 +978,7 @@
                 const history = data.weight_history ? [...data.weight_history].reverse() : []; 
                 const changeLogs = data.change_logs || [];
 
-                // Update all metrics
                 updateMetrics(metrics, history, changeLogs);
-                
-                // Update charts
                 updateCharts(history);
 
             } catch (error) {
@@ -1069,31 +988,18 @@
         };
 
         const updateMetrics = (metrics, history, changeLogs) => {
-            // Weight
             const formattedWeight = metrics.weight_kg != null ? metrics.weight_kg.toFixed(2) : '--';
             if (DOM('currentWeightHistory')) DOM('currentWeightHistory').textContent = formattedWeight;
             
-            // Change count
             if (DOM('changeCountHistory')) DOM('changeCountHistory').textContent = metrics.change_count || 0; 
             if (DOM('controlChangeCount')) DOM('controlChangeCount').textContent = metrics.change_count || 0; 
-
-            // Pyuria confidence
-            const pyuriaConf = metrics.pyuria_confidence != null ? (metrics.pyuria_confidence * 100).toFixed(1) : '--';
-            if (DOM('pyuriaConfidence')) {
-                DOM('pyuriaConfidence').textContent = pyuriaConf + '%';
-                DOM('pyuriaConfidence').style.color = metrics.pyuria_confidence > 0.70 ? 'var(--fb-red)' : 'var(--fb-green)';
-            }
             
-            // Buzzer status
             if (DOM('buzzerStatus')) {
                 DOM('buzzerStatus').textContent = metrics.buzzer_status || 'OFF';
                 DOM('buzzerStatus').style.color = metrics.buzzer_status === 'ON' ? 'var(--fb-red)' : 'var(--fb-green)';
             }
             
-            // Status messages
             let statusText = metrics.status_message || 'UNKNOWN';
-            let pyuriaStatusText = metrics.pyuria_status ? "PYURIA ALERT" : "NORMAL";
-            let pyuriaStatusColor = metrics.pyuria_status ? 'var(--fb-red)' : 'var(--fb-green)';
 
             if (DOM('weightStatusMessage')) {
                 DOM('weightStatusMessage').textContent = statusText; 
@@ -1106,23 +1012,12 @@
                 }
             }
             
-            if (DOM('aiStatusText2')) { 
-                DOM('aiStatusText2').textContent = pyuriaStatusText; 
-                DOM('aiStatusText2').style.color = pyuriaStatusColor; 
-            }
-            
-            if (DOM('totalAIDetections')) {
-                DOM('totalAIDetections').textContent = history.length || 0;
-            }
-            
-            // Last updated time
             if (DOM('lastUpdatedTime') && history.length > 0) {
                 DOM('lastUpdatedTime').textContent = formatTimestamp(history[0].timestamp);
             } else if (DOM('lastUpdatedTime')) {
                 DOM('lastUpdatedTime').textContent = new Date().toLocaleTimeString();
             }
             
-            // Update change log table
             updateChangeLog(changeLogs, DOM('changeLogBodyHistory'));
         };
 
@@ -1130,13 +1025,6 @@
             if (history.length >= 2) {
                 chartDataBuffer.labels = history.map(h => formatTimestamp(h.timestamp));
                 chartDataBuffer.weight = history.map(h => h.weight || 0);
-                chartDataBuffer.pyuriaConfidence = history.map(h => (h.pyuria_conf || 0) * 100);
-
-                if (detectionTrendChart) {
-                    detectionTrendChart.data.labels = chartDataBuffer.labels;
-                    detectionTrendChart.data.datasets[0].data = chartDataBuffer.pyuriaConfidence;
-                    detectionTrendChart.update('none'); // No animation for performance
-                }
                 
                 if (detailedWeightChart) {
                     detailedWeightChart.data.labels = chartDataBuffer.labels;
@@ -1144,11 +1032,6 @@
                     detailedWeightChart.update('none');
                 }
             } else {
-                if (detectionTrendChart) {
-                    detectionTrendChart.data.labels = [];
-                    detectionTrendChart.data.datasets[0].data = [];
-                    detectionTrendChart.update('none');
-                }
                 if (detailedWeightChart) {
                     detailedWeightChart.data.labels = [];
                     detailedWeightChart.data.datasets[0].data = [];
@@ -1175,9 +1058,6 @@
                 '<tr><td colspan="3" style="text-align: center; padding: 10px; color: var(--fb-text-secondary);">No catheter change records found.</td></tr>';
         };
 
-        // ====================================================
-        // CONTROL FUNCTIONS
-        // ====================================================
         window.controlBuzzer = async (command) => {
             addDebugLog(`Sending buzzer command: ${command}`, 'info');
             try {
@@ -1229,9 +1109,6 @@
             }
         };
 
-        // ====================================================
-        // TOAST NOTIFICATIONS
-        // ====================================================
         window.showToast = (title, message, type = 'info', duration = 4000) => {
             const toast = DOM('toast');
             const toastTitle = DOM('toastTitle');
@@ -1270,15 +1147,11 @@
             }, duration);
         };
 
-        // ====================================================
-        // INITIALIZATION
-        // ====================================================
         document.addEventListener('DOMContentLoaded', () => {
             addDebugLog('=== DASHBOARD INITIALIZATION ===', 'success');
             addDebugLog(`API URL: ${API_URL}`, 'info');
             addDebugLog(`Fetch Interval: ${FETCH_INTERVAL}ms`, 'info');
             
-            // Setup navigation
             navItems.forEach(item => {
                 item.addEventListener('click', () => {
                     const pageId = item.getAttribute('data-page');
@@ -1286,25 +1159,20 @@
                 });
             });
             
-            // Setup sidebar toggle
             if (sidebarToggle) {
                 sidebarToggle.addEventListener('click', function() {
                     if (sidebar) sidebar.classList.toggle('active');
                 });
             }
             
-            // Initial page
             switchPage('overview'); 
             
-            // Initial API test
             addDebugLog('Testing initial API connection...', 'info');
             testAPIConnection();
             
-            // Start auto-refresh
             fetchIntervalId = setInterval(fetchDataFromAPI, FETCH_INTERVAL); 
             addDebugLog(`Auto-refresh enabled (every ${FETCH_INTERVAL/1000}s)`, 'success');
             
-            // Clock update
             setInterval(() => {
                 if (DOM('deviceUptime')) {
                     const uptime = Math.floor((Date.now() - window.startTime) / 1000);
