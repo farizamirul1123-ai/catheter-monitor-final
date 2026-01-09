@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catheter Monitoring System | Group 3 Console</title> 
+    <title>Catheter Monitoring System | Group 3</title> 
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
@@ -53,13 +53,22 @@
         .logo-section {
             padding: 15px 25px;
             font-size: 1.1em;
-            font-weight: 600;
+            font-weight: 700; /* Bold */
             color: var(--fb-text-light);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px; /* Jarak antara logo dan teks */
             border-bottom: 1px solid #3c4043;
             margin-bottom: 10px;
+        }
+
+        /* STYLE UNTUK LOGO */
+        .logo-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%; /* Bulat */
+            object-fit: cover;
+            border: 2px solid var(--fb-primary);
         }
         
         .nav-item {
@@ -73,10 +82,7 @@
             gap: 15px;
         }
         
-        .nav-item:hover { 
-            background-color: #35363a; 
-            color: var(--fb-text-light); 
-        }
+        .nav-item:hover { background-color: #35363a; color: var(--fb-text-light); }
         
         .nav-item.active {
             background-color: var(--fb-nav-active);
@@ -95,205 +101,121 @@
         }
 
         /* Language Buttons */
-        .lang-btn-group {
-            padding: 10px 20px;
-            display: flex;
-            gap: 10px;
-        }
-
+        .lang-btn-group { padding: 10px 20px; display: flex; gap: 10px; }
         .lang-btn {
-            background-color: #3c4043;
-            color: white;
-            border: 1px solid #5f6368;
-            padding: 8px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.8em;
-            text-align: center;
-            flex: 1;
-            transition: all 0.2s;
+            background-color: #3c4043; color: white; border: 1px solid #5f6368;
+            padding: 8px; border-radius: 4px; cursor: pointer; font-size: 0.8em;
+            text-align: center; flex: 1; transition: all 0.2s;
         }
-
         .lang-btn:hover { background-color: var(--fb-primary); border-color: var(--fb-primary); }
         .lang-btn.active-lang { background-color: var(--fb-primary); border-color: var(--fb-primary); font-weight: bold; }
 
         /* --- CONTENT STYLE --- */
         .content-area {
-            flex-grow: 1;
-            padding: 30px;
-            overflow-y: auto;
-            margin-left: 280px; 
-            width: calc(100% - 280px);
+            flex-grow: 1; padding: 30px; overflow-y: auto;
+            margin-left: 280px; width: calc(100% - 280px);
         }
         
         #sidebarToggle {
-            display: none;
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 1000;
-            background: var(--fb-nav);
-            color: var(--fb-text-light);
-            border: 1px solid #3c4043;
-            padding: 10px 15px;
-            cursor: pointer;
-            font-size: 1.2em;
-            border-radius: 4px;
+            display: none; position: fixed; top: 10px; left: 10px; z-index: 1000;
+            background: var(--fb-nav); color: var(--fb-text-light);
+            border: 1px solid #3c4043; padding: 10px 15px; cursor: pointer;
+            font-size: 1.2em; border-radius: 4px;
         }
 
+        /* --- MOBILE RESPONSIVE FIXES --- */
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-280px); box-shadow: none; }
             .sidebar.active { transform: translateX(0); }
-            .content-area { margin-left: 0; width: 100%; padding: 10px; padding-top: 60px; }
+            .content-area { margin-left: 0; width: 100%; padding: 15px; padding-top: 60px; }
             #sidebarToggle { display: block; }
             .metric-grid { grid-template-columns: 1fr !important; gap: 15px; }
-            .project-details-grid { grid-template-columns: 1fr; }
+            
+            /* FIX FOR GROUP MEMBERS CARD ON MOBILE */
+            .project-details-grid { grid-template-columns: 1fr !important; }
+            .team-member-card {
+                flex-direction: row; 
+                align-items: center;
+                padding: 10px;
+                width: 100%;
+                box-sizing: border-box; 
+            }
+            .member-info { overflow: hidden; }
+            .member-info h4 { font-size: 0.9em; white-space: normal; }
         }
 
         .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-bottom: 25px;
-            border-bottom: 1px solid #3c4043;
-            padding-bottom: 15px;
-            flex-wrap: wrap;
-            gap: 10px;
+            display: flex; justify-content: space-between; align-items: flex-end;
+            margin-bottom: 25px; border-bottom: 1px solid #3c4043; padding-bottom: 15px;
+            flex-wrap: wrap; gap: 10px;
         }
         
         .page-title { font-size: 1.8em; font-weight: 700; color: #ffffff; }
         .last-updated { font-size: 0.9em; color: var(--fb-text-secondary); }
         
-        .metric-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-bottom: 25px;
-        }
+        .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px; }
         
         .card {
-            background-color: var(--fb-card);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-            margin-bottom: 20px; 
+            background-color: var(--fb-card); padding: 20px; border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4); margin-bottom: 20px; 
         }
         
         .card-title {
-            font-size: 1.1em;
-            font-weight: 600;
-            color: #ffffff; 
-            margin-bottom: 15px;
-            border-bottom: 1px solid #3c4043;
-            padding-bottom: 10px;
+            font-size: 1.1em; font-weight: 600; color: #ffffff; 
+            margin-bottom: 15px; border-bottom: 1px solid #3c4043; padding-bottom: 10px;
         }
         
         .metric-indicator {
-            text-align: left;
-            padding: 15px;
-            border: 1px solid #3c4043;
-            border-radius: 4px;
-            min-height: 120px;
+            text-align: left; padding: 15px; border: 1px solid #3c4043;
+            border-radius: 4px; min-height: 120px;
         }
         
-        .indicator-value {
-            font-size: 2em;
-            font-weight: 700;
-            color: #ffffff !important; 
-        }
+        .indicator-value { font-size: 2em; font-weight: 700; color: #ffffff !important; }
+        .status-message-value { font-size: 1.5em; font-weight: 700; line-height: 1.2; color: #ffffff; }
+        .value-label { font-size: 0.9em; color: var(--fb-text-secondary); margin-top: 5px; }
         
-        .status-message-value {
-             font-size: 1.8em;
-             font-weight: 700;
-             line-height: 1.2;
-             color: #ffffff; 
-        }
-
-        .value-label {
-            font-size: 0.9em;
-            color: var(--fb-text-secondary);
-            margin-top: 5px;
-        }
-        
-        .project-details-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
+        .project-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         
         .team-member-card {
-            background-color: #33363b;
-            padding: 15px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            border-left: 4px solid var(--fb-yellow);
+            background-color: #33363b; padding: 15px; border-radius: 6px;
+            display: flex; align-items: center; gap: 15px; border-left: 4px solid var(--fb-yellow);
         }
         
         .member-photo-placeholder {
-            width: 60px; height: 60px; border-radius: 50%;
+            width: 50px; height: 50px; border-radius: 50%;
             background-color: #555; display: flex; align-items: center; justify-content: center;
-            font-size: 1.5em; color: var(--fb-text-light); flex-shrink: 0;
+            font-size: 1.2em; color: var(--fb-text-light); flex-shrink: 0;
             border: 2px solid var(--fb-primary); overflow: hidden;
         }
-
         .member-photo-placeholder img { width: 100%; height: 100%; object-fit: cover; }
         
-        .member-info h4 { font-size: 1em; font-weight: 700; margin-bottom: 3px; color: white; }
-        .member-info p { font-size: 0.85em; color: var(--fb-text-secondary); }
+        .member-info h4 { font-size: 0.95em; font-weight: 700; margin-bottom: 3px; color: white; }
+        .member-info p { font-size: 0.8em; color: var(--fb-text-secondary); }
         
         .log-table { width: 100%; border-collapse: collapse; font-size: 0.85em; }
         .log-table th, .log-table td { padding: 10px 8px; text-align: left; border-bottom: 1px solid #3c4043; color: white; }
         .log-table th { color: var(--fb-text-secondary); font-weight: 500; text-transform: uppercase; font-size: 0.75em; }
         
         .control-group {
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 6px;
-            background-color: var(--fb-nav-active);
-            border: 1px solid #3c4043;
+            padding: 15px; margin-bottom: 15px; border-radius: 6px;
+            background-color: var(--fb-nav-active); border: 1px solid #3c4043;
         }
-        
-        .control-group h4 {
-            color: var(--fb-primary);
-            margin-bottom: 10px;
-            font-size: 1.05em;
-            font-weight: 600;
-        }
-        
+        .control-group h4 { color: var(--fb-primary); margin-bottom: 10px; font-size: 1.05em; font-weight: 600; }
         .control-group button {
-            padding: 8px 12px;
-            border: none;
-            border-radius: 4px;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            margin-right: 8px;
-            margin-top: 5px;
-            font-size: 0.9em;
+            padding: 8px 12px; border: none; border-radius: 4px; color: white;
+            font-weight: 600; cursor: pointer; transition: background-color 0.2s;
+            margin-right: 8px; margin-top: 5px; font-size: 0.9em;
         }
-        
         .control-group button:hover { opacity: 0.8; }
         
         .debug-console {
-            background-color: #1a1a1a;
-            border: 2px solid var(--fb-yellow);
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 20px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.85em;
-            max-height: 400px;
-            overflow-y: auto;
+            background-color: #1a1a1a; border: 2px solid var(--fb-yellow);
+            border-radius: 8px; padding: 15px; margin-top: 20px;
+            font-family: 'Courier New', monospace; font-size: 0.85em;
+            max-height: 400px; overflow-y: auto;
         }
-        
         .debug-console h4 { color: var(--fb-yellow); margin-bottom: 10px; font-size: 1.1em; }
         .debug-log { color: var(--fb-text-light); padding: 5px 0; border-bottom: 1px solid #333; line-height: 1.5; }
-        .debug-log.error { color: var(--fb-red); }
-        .debug-log.success { color: var(--fb-green); }
-        .debug-log.warning { color: var(--fb-yellow); }
         
         .connection-status {
             display: inline-block; padding: 5px 12px; border-radius: 4px;
@@ -315,9 +237,8 @@
 
     <div class="sidebar" id="sidebar">
         <div class="logo-section">
-            <i class="fas fa-notes-medical" style="color: var(--fb-primary); font-size: 1.3em;"></i>
-            <span>UroTech Monitor</span>
-        </div>
+            <img src="/static/fpf.jpg" alt="Logo" class="logo-img">
+            <span>UROTECH</span> </div>
 
         <div class="lang-btn-group">
             <button class="lang-btn" id="btn-ms" onclick="setLanguage('ms')">Bahasa Malaysia</button>
@@ -371,12 +292,12 @@
                     <ul>
                         <li>
                             <i class="fas fa-weight-hanging" style="color: var(--fb-yellow);"></i>
-                            <strong style="color: #ffffff;">Weight Monitoring Module:</strong>
+                            <strong style="color: #ffffff;" id="title_weight">Weight Monitoring Module:</strong>
                             <span id="desc_li1">Measures the weight of urine collected in the catheter bag in real time.</span>
                         </li>
                         <li>
                             <i class="fas fa-bell" style="color: var(--fb-yellow);"></i>
-                            <strong style="color: #ffffff;">Alert System:</strong>
+                            <strong style="color: #ffffff;" id="title_alert">Alert System:</strong>
                             <span id="desc_li2">Activates a buzzer and sends notifications when preset weight thresholds are reached.</span>
                         </li>
                     </ul>
@@ -434,7 +355,7 @@
                     <div class="value-label" data-key="lbl_weight">Current Urine Weight (KG)</div>
                 </div>
                 <div class="metric-indicator" style="border-left: 4px solid var(--fb-yellow);">
-                    <div class="status-message-value" id="weightStatusMessage">--</div>
+                    <div class="status-message-value" id="weightStatusMessage">Checking...</div>
                     <div class="value-label" data-key="lbl_status">Urine Status Message (Level)</div>
                 </div>
                 <div class="metric-indicator" style="border-left: 4px solid var(--fb-green);">
@@ -488,8 +409,8 @@
             </div>
 
             <div class="control-group" style="border-color: var(--fb-primary);">
-                <h4><i class="fas fa-undo" style="color: white;"></i> Reset Log Counter</h4>
-                <p style="color: white; margin-bottom: 10px;" data-key="reset_log_desc">Press this button to reset the Total Catheter Changes count to 0.</p>
+                <h4><i class="fas fa-undo" style="color: white;"></i> Reset Log Counter (Local)</h4>
+                <p style="color: white; margin-bottom: 10px;" data-key="reset_log_desc">Press this button to reset the Total Catheter Changes count to 0 (This device only).</p>
                 <button style="background-color: white; color: var(--fb-dark);" onclick="resetCatheterLog()"><i class="fas fa-sync"></i> <span data-key="btn_reset_log">RESET LOG CATHETER</span></button>
             </div>
 
@@ -578,6 +499,11 @@
                 mission_title: "Project Mission & Goals",
                 group_members: "Group Members (Group 3)",
                 desc_p1: "This project focuses on developing an IoT-based catheter monitoring system to enhance patient safety and reduce the risk of catheter overflow. The system continuously monitors urine volume using a load cell sensor and sends real-time data to an IoT platform for remote monitoring.",
+                
+                // NEW KEYS FOR TRANSLATION
+                title_weight: "Weight Monitoring Module:",
+                title_alert: "Alert System:",
+                
                 desc_li1: "Measures the weight of urine collected in the catheter bag in real time.",
                 desc_li2: "Activates a buzzer and sends notifications when preset weight thresholds are reached.",
                 crit_goals: "Critical Goals:",
@@ -594,8 +520,13 @@
                 tele_desc: "The Flask API manages notifications. Token/Chat ID configuration is stored in PostgreSQL.",
                 log_action_desc: "Press this button to record a catheter change and reset the simulated weight.",
                 btn_log: "LOG CATHETER CHANGE",
-                reset_log_desc: "Press this button to reset the Total Catheter Changes count to 0.",
-                btn_reset_log: "RESET LOG CATHETER"
+                reset_log_desc: "Press this button to reset the Total Catheter Changes count to 0 (Local View Only).",
+                btn_reset_log: "RESET LOG CATHETER",
+                
+                status_safe: "Catheter still in safe level",
+                status_warning: "Warning: Level approaching limit",
+                status_danger: "DANGER: Critical Limit Reached!",
+                status_unknown: "Waiting for sensor data..."
             },
             ms: {
                 nav_console: "KONSOL",
@@ -610,6 +541,11 @@
                 mission_title: "Misi & Matlamat Projek",
                 group_members: "Ahli Kumpulan (Kumpulan 3)",
                 desc_p1: "Projek ini menumpukan kepada pembangunan sistem pemantauan kateter berasaskan IoT untuk meningkatkan keselamatan pesakit dan mengurangkan risiko limpahan kateter. Sistem ini memantau isipadu air kencing secara berterusan menggunakan sensor load cell dan menghantar data masa nyata ke platform IoT untuk pemantauan jarak jauh.",
+                
+                // TRANSLATION BARU
+                title_weight: "Modul Pemantauan Berat:",
+                title_alert: "Sistem Amaran:",
+
                 desc_li1: "Mengukur berat air kencing yang dikumpul dalam beg kateter dalam masa nyata.",
                 desc_li2: "Mengaktifkan buzzer dan menghantar notifikasi apabila had berat pratetap dicapai.",
                 crit_goals: "Matlamat Kritikal:",
@@ -626,8 +562,13 @@
                 tele_desc: "API Flask menguruskan notifikasi. Konfigurasi Token/Chat ID disimpan dalam PostgreSQL.",
                 log_action_desc: "Tekan butang ini untuk merekod penukaran kateter dan menetapkan semula berat simulasi.",
                 btn_log: "REKOD PENUKARAN KATETER",
-                reset_log_desc: "Tekan butang ini untuk menetapkan semula jumlah kiraan penukaran kateter kepada 0.",
-                btn_reset_log: "RESET LOG KATETER"
+                reset_log_desc: "Tekan butang ini untuk menetapkan semula jumlah kiraan penukaran kateter kepada 0 (Paparan Sini Sahaja).",
+                btn_reset_log: "RESET LOG KATETER",
+
+                status_safe: "Kateter masih berada dalam paras selamat",
+                status_warning: "Amaran: Paras menghampiri had",
+                status_danger: "BAHAYA: Had Kritikal Dicapai!",
+                status_unknown: "Menunggu data sensor..."
             }
         };
 
@@ -635,22 +576,30 @@
             const keys = Object.keys(dictionary[lang]);
             keys.forEach(key => {
                 const element = document.querySelector(`[data-key="${key}"]`);
-                if (element) {
-                    element.textContent = dictionary[lang][key];
-                }
+                if (element) element.textContent = dictionary[lang][key];
+                
+                // Specific IDs
                 if (key === 'desc_p1') document.getElementById('desc_p1').textContent = dictionary[lang][key];
                 if (key === 'desc_li1') document.getElementById('desc_li1').textContent = dictionary[lang][key];
                 if (key === 'desc_li2') document.getElementById('desc_li2').textContent = dictionary[lang][key];
                 if (key === 'desc_p2') document.getElementById('desc_p2').textContent = dictionary[lang][key];
+                
+                // NEW: Handle Titles for Weight & Alert
+                if (key === 'title_weight') document.getElementById('title_weight').textContent = dictionary[lang][key];
+                if (key === 'title_alert') document.getElementById('title_alert').textContent = dictionary[lang][key];
             });
+            
             const activePage = document.querySelector('.nav-item.active').getAttribute('data-page');
             const pageTitleEl = document.getElementById('mainTitle');
             const keyMap = { 'overview': 'nav_overview', 'weight_history': 'nav_history', 'alerts': 'nav_config', 'device_status': 'nav_device', 'debug': 'nav_debug' };
             if(dictionary[lang][keyMap[activePage]]) pageTitleEl.textContent = dictionary[lang][keyMap[activePage]];
+            
             document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active-lang'));
             document.getElementById(`btn-${lang}`).classList.add('active-lang');
+            
             currentLang = lang;
             localStorage.setItem('preferredLang', lang);
+            manualRefresh();
         }
 
         const addDebugLog = (message, type = 'info') => {
@@ -712,25 +661,19 @@
         
         const formatTimestamp = (ms) => {
             let timestamp = parseInt(ms);
-            // Auto-fix if timestamp is in seconds (Python style) instead of milliseconds (JS style)
+            if (timestamp === 0) return "--:--:--";
             if (timestamp < 10000000000) timestamp *= 1000;
+            if (timestamp < 946684800000) return new Date().toLocaleTimeString('en-US');
             return new Date(timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         };
 
-        // --- SMART DATE FORMATTER (FIX 1970 & FORMAT ISSUE) ---
         const formatDateMY = (val) => {
-            if (!val) return "--";
-            
             let ms = parseInt(val);
-            // Fix 1: Check if it's seconds (Python often sends seconds, JS needs ms)
-            // If the number is small (less than 10 digits), it's likely seconds.
-            if (ms < 10000000000) {
-                ms *= 1000;
-            }
+            if (!ms || ms === 0 || isNaN(ms)) return new Date().toLocaleDateString('en-GB'); 
+            if (ms < 10000000000) ms *= 1000;
+            if (ms < 946684800000) return new Date().toLocaleDateString('en-GB');
 
             const date = new Date(ms);
-            
-            // Fix 2: Force DD/MM/YYYY format explicitly
             return date.toLocaleDateString('en-GB', {
                 day: '2-digit',
                 month: '2-digit',
@@ -862,14 +805,26 @@
             if (DOM('changeCountHistory')) DOM('changeCountHistory').textContent = displayCount; 
             if (DOM('controlChangeCount')) DOM('controlChangeCount').textContent = displayCount; 
             
-            let statusText = metrics.status_message || 'UNKNOWN';
+            let alertLevel = metrics.alert_level || 'UNKNOWN';
+            let statusText = dictionary[currentLang]['status_unknown'];
+
+            if (alertLevel === 'LEVEL_1500_DANGER') statusText = dictionary[currentLang]['status_danger'];
+            else if (alertLevel === 'LEVEL_1000_REACHED') statusText = dictionary[currentLang]['status_warning'];
+            else if (alertLevel === 'LEVEL_SAFE' || alertLevel === 'LEVEL_500_REACHED') statusText = dictionary[currentLang]['status_safe'];
+            else statusText = dictionary[currentLang]['status_safe']; 
+
             if (DOM('weightStatusMessage')) {
-                DOM('weightStatusMessage').textContent = statusText; 
-                if (metrics.alert_level === 'LEVEL_1500_DANGER') DOM('weightStatusMessage').style.color = 'var(--fb-red)';
-                else if (metrics.alert_level === 'LEVEL_1000_REACHED') DOM('weightStatusMessage').style.color = 'var(--fb-yellow)';
+                DOM('weightStatusMessage').textContent = statusText;
+                if (alertLevel === 'LEVEL_1500_DANGER') DOM('weightStatusMessage').style.color = 'var(--fb-red)';
+                else if (alertLevel === 'LEVEL_1000_REACHED') DOM('weightStatusMessage').style.color = 'var(--fb-yellow)';
                 else DOM('weightStatusMessage').style.color = 'var(--fb-green)';
             }
-            if (DOM('lastUpdatedTime') && history.length > 0) DOM('lastUpdatedTime').textContent = formatTimestamp(history[0].timestamp);
+            
+            // --- FIX REAL TIME "LAST UPDATED" ---
+            // If data fetch is successful, use the browser's current time to show "Real Time" activity
+            if (DOM('lastUpdatedTime')) {
+                DOM('lastUpdatedTime').textContent = new Date().toLocaleTimeString('en-US');
+            }
             
             updateChangeLog(changeLogs, DOM('changeLogBodyHistory'));
         };
@@ -889,7 +844,6 @@
         const updateChangeLog = (changeLogs, targetElement) => {
             if (!targetElement) return;
             let logHtml = '';
-            
             let displayCount = Math.max(0, serverLatestCount - catheterLogOffset);
             
             if (displayCount === 0) {
@@ -921,14 +875,14 @@
         };
 
         window.resetCatheterLog = async () => {
-            if(!confirm("Are you sure you want to reset the Log Count to 0?")) return;
+            if(!confirm("NOTE: This only resets the counter on THIS DEVICE. It does not delete data from the server. Continue?")) return;
             addDebugLog('Resetting log count locally...', 'warning');
             catheterLogOffset = serverLatestCount;
             localStorage.setItem('catheterLogOffset', catheterLogOffset);
             if (DOM('changeCountHistory')) DOM('changeCountHistory').textContent = "0";
             if (DOM('controlChangeCount')) DOM('controlChangeCount').textContent = "0";
             if (DOM('changeLogBodyHistory')) DOM('changeLogBodyHistory').innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 10px; color: var(--fb-text-secondary);">No records found.</td></tr>';
-            showToast('Reset Success', 'Catheter Log Count reset to 0.', 'success');
+            showToast('Reset Success', 'Counter hidden on this device.', 'success');
         };
 
         window.showToast = (title, message, type = 'info') => {
