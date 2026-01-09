@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catheter Monitoring System | Group 3 Console (PostgreSQL)</title> 
+    <title>Catheter Monitoring System | Group 3 Console</title> 
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
@@ -16,13 +16,13 @@
             --fb-card: #292a2d; 
             --fb-nav: #282a2e; 
             --fb-nav-active: #3b3d40; 
-            --fb-text-light: #e8eaed; 
+            --fb-text-light: #ffffff; 
             --fb-text-secondary: #9aa0a6; 
             --fb-primary: #1a73e8; 
             --fb-green: #34a853;
             --fb-red: #ea4335;
             --fb-yellow: #fbbc04;
-            --chart-line: #F0F0F0;
+            --chart-line: #FFFFFF; 
             --chart-grid-line: #3c4043; 
         }
 
@@ -36,6 +36,7 @@
             display: flex;
         }
 
+        /* --- SIDEBAR STYLE --- */
         .sidebar {
             width: 280px;
             background-color: var(--fb-nav);
@@ -92,6 +93,38 @@
             color: var(--fb-text-secondary);
             text-transform: uppercase;
         }
+
+        /* Language Buttons */
+        .lang-btn-group {
+            padding: 10px 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .lang-btn {
+            background-color: #3c4043;
+            color: white;
+            border: 1px solid #5f6368;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            text-align: center;
+            flex: 1;
+            transition: all 0.2s;
+        }
+
+        .lang-btn:hover { background-color: var(--fb-primary); border-color: var(--fb-primary); }
+        .lang-btn.active-lang { background-color: var(--fb-primary); border-color: var(--fb-primary); font-weight: bold; }
+
+        /* --- CONTENT STYLE --- */
+        .content-area {
+            flex-grow: 1;
+            padding: 30px;
+            overflow-y: auto;
+            margin-left: 280px; 
+            width: calc(100% - 280px);
+        }
         
         #sidebarToggle {
             display: none;
@@ -108,38 +141,13 @@
             border-radius: 4px;
         }
 
-        .content-area {
-            flex-grow: 1;
-            padding: 30px;
-            overflow-y: auto;
-            margin-left: 280px; 
-            width: calc(100% - 280px);
-        }
-        
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-280px);
-                box-shadow: none;
-            }
-            .sidebar.active {
-                transform: translateX(0);
-            }
-            .content-area {
-                margin-left: 0;
-                width: 100%;
-                padding: 10px;
-                padding-top: 60px;
-            }
-            #sidebarToggle {
-                display: block;
-            }
-            .metric-grid {
-                grid-template-columns: 1fr !important;
-                gap: 15px;
-            }
-            .project-details-grid {
-                grid-template-columns: 1fr;
-            }
+            .sidebar { transform: translateX(-280px); box-shadow: none; }
+            .sidebar.active { transform: translateX(0); }
+            .content-area { margin-left: 0; width: 100%; padding: 10px; padding-top: 60px; }
+            #sidebarToggle { display: block; }
+            .metric-grid { grid-template-columns: 1fr !important; gap: 15px; }
+            .project-details-grid { grid-template-columns: 1fr; }
         }
 
         .top-bar {
@@ -153,15 +161,8 @@
             gap: 10px;
         }
         
-        .page-title {
-            font-size: 1.8em;
-            font-weight: 700;
-        }
-        
-        .last-updated {
-            font-size: 0.9em;
-            color: var(--fb-text-secondary);
-        }
+        .page-title { font-size: 1.8em; font-weight: 700; color: #ffffff; }
+        .last-updated { font-size: 0.9em; color: var(--fb-text-secondary); }
         
         .metric-grid {
             display: grid;
@@ -181,7 +182,7 @@
         .card-title {
             font-size: 1.1em;
             font-weight: 600;
-            color: var(--fb-text-light);
+            color: #ffffff; 
             margin-bottom: 15px;
             border-bottom: 1px solid #3c4043;
             padding-bottom: 10px;
@@ -198,9 +199,16 @@
         .indicator-value {
             font-size: 2em;
             font-weight: 700;
-            color: var(--fb-yellow);
+            color: #ffffff !important; 
         }
         
+        .status-message-value {
+             font-size: 1.8em;
+             font-weight: 700;
+             line-height: 1.2;
+             color: #ffffff; 
+        }
+
         .value-label {
             font-size: 0.9em;
             color: var(--fb-text-secondary);
@@ -224,56 +232,20 @@
         }
         
         .member-photo-placeholder {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background-color: #555;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5em;
-            color: var(--fb-text-light);
-            flex-shrink: 0;
-            border: 2px solid var(--fb-primary);
-            overflow: hidden;
+            width: 60px; height: 60px; border-radius: 50%;
+            background-color: #555; display: flex; align-items: center; justify-content: center;
+            font-size: 1.5em; color: var(--fb-text-light); flex-shrink: 0;
+            border: 2px solid var(--fb-primary); overflow: hidden;
         }
 
-        .member-photo-placeholder img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        .member-photo-placeholder img { width: 100%; height: 100%; object-fit: cover; }
         
-        .member-info h4 { 
-            font-size: 1em; 
-            font-weight: 700; 
-            margin-bottom: 3px; 
-        }
+        .member-info h4 { font-size: 1em; font-weight: 700; margin-bottom: 3px; color: white; }
+        .member-info p { font-size: 0.85em; color: var(--fb-text-secondary); }
         
-        .member-info p { 
-            font-size: 0.85em; 
-            color: var(--fb-text-secondary); 
-        }
-        
-        .log-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85em;
-        }
-        
-        .log-table th, .log-table td {
-            padding: 10px 8px;
-            text-align: left;
-            border-bottom: 1px solid #3c4043;
-            color: var(--fb-text-light);
-        }
-        
-        .log-table th {
-            color: var(--fb-text-secondary);
-            font-weight: 500;
-            text-transform: uppercase;
-            font-size: 0.75em;
-        }
+        .log-table { width: 100%; border-collapse: collapse; font-size: 0.85em; }
+        .log-table th, .log-table td { padding: 10px 8px; text-align: left; border-bottom: 1px solid #3c4043; color: white; }
+        .log-table th { color: var(--fb-text-secondary); font-weight: 500; text-transform: uppercase; font-size: 0.75em; }
         
         .control-group {
             padding: 15px;
@@ -303,19 +275,7 @@
             font-size: 0.9em;
         }
         
-        .control-group button:hover {
-            opacity: 0.8;
-        }
-        
-        #contentDeviceStatus p strong {
-             color: var(--fb-text-light) !important;
-        }
-        
-        .status-message-value {
-             font-size: 1.8em;
-             font-weight: 700;
-             line-height: 1.2;
-        }
+        .control-group button:hover { opacity: 0.8; }
         
         .debug-console {
             background-color: #1a1a1a;
@@ -329,60 +289,24 @@
             overflow-y: auto;
         }
         
-        .debug-console h4 {
-            color: var(--fb-yellow);
-            margin-bottom: 10px;
-            font-size: 1.1em;
-        }
-        
-        .debug-log {
-            color: var(--fb-text-light);
-            padding: 5px 0;
-            border-bottom: 1px solid #333;
-            line-height: 1.5;
-        }
-        
+        .debug-console h4 { color: var(--fb-yellow); margin-bottom: 10px; font-size: 1.1em; }
+        .debug-log { color: var(--fb-text-light); padding: 5px 0; border-bottom: 1px solid #333; line-height: 1.5; }
         .debug-log.error { color: var(--fb-red); }
         .debug-log.success { color: var(--fb-green); }
         .debug-log.warning { color: var(--fb-yellow); }
         
         .connection-status {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 4px;
-            font-size: 0.85em;
-            font-weight: 600;
-            margin-left: 10px;
+            display: inline-block; padding: 5px 12px; border-radius: 4px;
+            font-size: 0.85em; font-weight: 600; margin-left: 10px;
         }
+        .connection-status.online { background-color: var(--fb-green); color: white; }
+        .connection-status.offline { background-color: var(--fb-red); color: white; }
         
-        .connection-status.online {
-            background-color: var(--fb-green);
-            color: white;
-        }
-        
-        .connection-status.offline {
-            background-color: var(--fb-red);
-            color: white;
-        }
-        
-        .project-description {
-            line-height: 1.6; 
-            color: var(--fb-text-secondary);
-        }
-        
-        .project-description p {
-            margin-bottom: 10px;
-        }
-        
-        .project-description ul {
-            margin: 15px 0 15px 20px; 
-            list-style-type: disc; 
-            color: var(--fb-primary);
-        }
-        
-        .project-description li {
-            margin-bottom: 8px;
-        }
+        .project-description { line-height: 1.6; color: white; } 
+        .project-description p { margin-bottom: 10px; color: white !important; }
+        .project-description ul { margin: 15px 0 15px 20px; list-style-type: none; padding: 0; }
+        .project-description li { margin-bottom: 12px; color: white; position: relative; padding-left: 25px; }
+        .project-description li i { position: absolute; left: 0; top: 3px; }
     </style>
 </head>
 <body>
@@ -391,31 +315,36 @@
 
     <div class="sidebar" id="sidebar">
         <div class="logo-section">
-            <i class="fas fa-database" style="color: var(--fb-primary);"></i>
-            <span>Catheter Monitor</span>
+            <i class="fas fa-notes-medical" style="color: var(--fb-primary); font-size: 1.3em;"></i>
+            <span>UroTech Monitor</span>
         </div>
 
-        <div class="nav-heading">CONSOLE</div>
+        <div class="lang-btn-group">
+            <button class="lang-btn" id="btn-ms" onclick="setLanguage('ms')">Bahasa Malaysia</button>
+            <button class="lang-btn" id="btn-en" onclick="setLanguage('en')">English</button>
+        </div>
+
+        <div class="nav-heading" data-key="nav_console">CONSOLE</div>
         <div class="nav-item active" data-page="overview">
-            <i class="fas fa-tachometer-alt"></i> Project Overview
+            <i class="fas fa-tachometer-alt"></i> <span data-key="nav_overview">Project Overview</span>
         </div>
         
-        <div class="nav-heading">CRITICAL ANALYTICS</div>
+        <div class="nav-heading" data-key="nav_analytics">CRITICAL ANALYTICS</div>
         <div class="nav-item" data-page="weight_history">
-            <i class="fas fa-tint"></i> Urine Weight History
+            <i class="fas fa-tint"></i> <span data-key="nav_history">Urine Weight History</span>
         </div>
         
-        <div class="nav-heading">CONTROL SYSTEM</div>
+        <div class="nav-heading" data-key="nav_control">CONTROL SYSTEM</div>
         <div class="nav-item" data-page="alerts">
-            <i class="fas fa-sliders-h"></i> Alert Configuration
+            <i class="fas fa-sliders-h"></i> <span data-key="nav_config">Maintenance Config</span>
         </div>
         <div class="nav-item" data-page="device_status">
-            <i class="fas fa-server"></i> Device Status
+            <i class="fas fa-server"></i> <span data-key="nav_device">Device Status</span>
         </div>
         
         <div class="nav-heading">DEBUG TOOLS</div>
-        <div class="nav-item" data-page="debug">
-            <i class="fas fa-bug"></i> Debug Console
+        <div class="nav-item" data-page="debug" id="btnDebug">
+            <i class="fas fa-bug"></i> <span data-key="nav_debug">Debug Console</span>
         </div>
     </div>
 
@@ -426,45 +355,46 @@
                 <div class="page-title" id="mainTitle">Project Overview</div>
                 <span class="connection-status offline" id="apiConnectionStatus">API OFFLINE</span>
             </div>
-            <div class="last-updated">Last updated: <span id="lastUpdatedTime">--</span></div>
+            <div class="last-updated"><span data-key="last_updated">Last updated:</span> <span id="lastUpdatedTime">--</span></div>
         </div>
 
-        <!-- OVERVIEW PAGE -->
         <div id="contentOverview" class="page-content">
             
-<div class="card">
-    <div class="card-title">Project Mission & Goals</div>
-    <div class="project-description">
-        <p style="color: var(--fb-text-light);">
-            This project focuses on developing an IoT-based catheter monitoring system to enhance patient safety and reduce the risk of catheter overflow. 
-            The system continuously monitors urine volume using a load cell sensor and sends real-time data to an IoT platform for remote monitoring.
-        </p>
-        
-        <ul>
-            <li>
-                <strong style="color: var(--fb-yellow);">Weight Monitoring Module (Arduino & ESP32):</strong>
-                Measures the weight of urine collected in the catheter bag in real time.
-            </li>
-            <li>
-                <strong style="color: var(--fb-yellow);">Alert System:</strong>
-                Activates a buzzer and sends notifications when preset weight thresholds are reached.
-            </li>
-        </ul>
+            <div class="card">
+                <div class="card-title" data-key="mission_title">Project Mission & Goals</div>
+                <div class="project-description">
+                    <p id="desc_p1">
+                        This project focuses on developing an IoT-based catheter monitoring system to enhance patient safety and reduce the risk of catheter overflow. 
+                        The system continuously monitors urine volume using a load cell sensor and sends real-time data to an IoT platform for remote monitoring.
+                    </p>
+                    
+                    <ul>
+                        <li>
+                            <i class="fas fa-weight-hanging" style="color: var(--fb-yellow);"></i>
+                            <strong style="color: #ffffff;">Weight Monitoring Module:</strong>
+                            <span id="desc_li1">Measures the weight of urine collected in the catheter bag in real time.</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-bell" style="color: var(--fb-yellow);"></i>
+                            <strong style="color: #ffffff;">Alert System:</strong>
+                            <span id="desc_li2">Activates a buzzer and sends notifications when preset weight thresholds are reached.</span>
+                        </li>
+                    </ul>
 
-        <p style="font-weight: 600; color: var(--fb-text-light);">Critical Goals:</p>
-        <p style="color: var(--fb-red);">
-            To provide timely alerts when the catheter bag reaches critical weight levels (e.g. 500g, 1000g, and 1500g), 
-            helping caregivers take immediate action to prevent overflow and improve patient care.
-        </p>
-    </div>
-</div>
+                    <p style="font-weight: 600; color: #ffffff;" data-key="crit_goals">Critical Goals:</p>
+                    <p style="color: white;" id="desc_p2">
+                        To provide timely alerts when the catheter bag reaches critical weight levels (e.g. 500g, 1000g, and 1500g), 
+                        helping caregivers take immediate action to prevent overflow and improve patient care.
+                    </p>
+                </div>
+            </div>
 
-        <div class="card">
-                <div class="card-title">Group Members (Group 3)</div>
+            <div class="card">
+                <div class="card-title" data-key="group_members">Group Members (Group 3)</div>
                 <div class="project-details-grid" style="margin-top: 10px;">
                     <div class="team-member-card">
                         <div class="member-photo-placeholder" style="background-color: var(--fb-primary);">
-                            <img src="/static/fariz.jpg" alt="Fariz Amirul">
+                            <img src="/static/fariz.jpg" alt="Fariz">
                         </div>
                         <div class="member-info">
                             <h4>FARIZ AMIRUL BIN FAIZALL</h4>
@@ -474,7 +404,7 @@
                     </div>
                     <div class="team-member-card">
                         <div class="member-photo-placeholder" style="background-color: var(--fb-green);">
-                            <img src="/static/safiah.jpg" alt="Safiah Azmi">
+                            <img src="/static/safiah.jpg" alt="Safiah">
                         </div>
                         <div class="member-info">
                             <h4>SAFIAH BINTI AZMI</h4>
@@ -484,7 +414,7 @@
                     </div>
                     <div class="team-member-card">
                         <div class="member-photo-placeholder" style="background-color: var(--fb-red);">
-                            <img src="/static/nurfitri.jpg" alt="Nurfitridiyani Sahar Rudin">
+                            <img src="/static/nurfitri.jpg" alt="Nurfitri">
                         </div>
                         <div class="member-info">
                             <h4>NURFITRIDIYANI BINTI SAHAR RUDIN</h4>
@@ -495,47 +425,46 @@
                 </div>
             </div>
         </div>
-
-        <!-- WEIGHT HISTORY PAGE -->
+        
         <div id="contentWeightHistory" class="page-content" style="display:none;">
             
             <div class="metric-grid"> 
                 <div class="metric-indicator" style="border-left: 4px solid var(--fb-primary);">
                     <div class="indicator-value" id="currentWeightHistory">--</div>
-                    <div class="value-label">Current Urine Weight (KG)</div>
+                    <div class="value-label" data-key="lbl_weight">Current Urine Weight (KG)</div>
                 </div>
                 <div class="metric-indicator" style="border-left: 4px solid var(--fb-yellow);">
                     <div class="status-message-value" id="weightStatusMessage">--</div>
-                    <div class="value-label">Urine Status Message (Level)</div>
+                    <div class="value-label" data-key="lbl_status">Urine Status Message (Level)</div>
                 </div>
                 <div class="metric-indicator" style="border-left: 4px solid var(--fb-green);">
                     <div class="indicator-value" id="changeCountHistory">0</div>
-                    <div class="value-label">Total Catheter Changes Logged</div>
+                    <div class="value-label" data-key="lbl_total_changes">Total Catheter Changes Logged</div>
                 </div>
             </div>
 
             <div class="card">
-                <div class="card-title">Urine Weight Accumulation Trend (Last 50 Readings)</div>
-                <p style="color: var(--fb-text-secondary); margin-bottom: 15px;">This chart shows the accumulation of urine weight over time with the critical 1.5kg limit.</p>
+                <div class="card-title" data-key="chart_title">Urine Weight Accumulation Trend (Last 50 Readings)</div>
+                <p style="color: var(--fb-text-secondary); margin-bottom: 15px;" data-key="chart_desc">This chart shows the accumulation of urine weight over time with the critical 1.5kg limit.</p>
                 <div style="height: 450px; padding-top: 10px;">
                     <canvas id="detailedWeightChart"></canvas>
                 </div>
-                <p style="text-align: right; color: var(--fb-red); margin-top: 10px; font-size: 0.9em;">Red dashed line: Critical Limit (1.5kg)</p>
+                <p style="text-align: right; color: var(--fb-red); margin-top: 10px; font-size: 0.9em;" data-key="chart_legend">Red dashed line: Critical Limit (1.5kg)</p>
             </div>
             
             <div class="card">
-                <div class="card-title">Catheter Maintenance Log</div>
+                <div class="card-title" data-key="log_title">Catheter Maintenance Log</div>
                 <div style="overflow-x: auto;">
                     <table class="log-table">
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Date</th>
-                                <th>Time</th>
+                                <th data-key="col_date">Date</th>
+                                <th data-key="col_time">Time</th>
                             </tr>
                         </thead>
                         <tbody id="changeLogBodyHistory">
-                            <tr><td colspan="3" style="text-align: center; padding: 10px; color: var(--fb-text-secondary);">No catheter change records found.</td></tr>
+                            <tr><td colspan="3" style="text-align: center; padding: 10px; color: var(--fb-text-secondary);">No records found.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -543,43 +472,32 @@
 
         </div>
         
-        <!-- ALERTS PAGE -->
         <div id="contentAlerts" class="page-content" style="display:none;">
             
             <div class="control-group">
                 <h4><i class="fab fa-telegram-plane" style="color: var(--fb-primary);"></i> Telegram Push Notification Status</h4>
-                <p style="color: var(--fb-text-secondary); font-size: 0.9em; margin-bottom: 10px;">The Flask API manages notifications. Token/Chat ID configuration is stored in PostgreSQL.</p>
-                
+                <p style="color: white; font-size: 0.9em; margin-bottom: 10px;" data-key="tele_desc">The Flask API manages notifications. Token/Chat ID configuration is stored in PostgreSQL.</p>
                 <p style="font-size: 0.8em; color: var(--fb-text-secondary); margin-top: 10px;">PG Configuration Status: <strong id="telegramStatus" style="color: var(--fb-green);">Token & Chat ID Configured</strong></p>
-            </div>
-            
-            <div class="control-group">
-                <h4><i class="fas fa-bell" style="color: var(--fb-yellow);"></i> Buzzer & Alert Status Control</h4>
-                <p style="color: var(--fb-text-secondary); margin-bottom: 10px;">Current Buzzer Status: <strong id="buzzerStatus" style="color: var(--fb-red);">--</strong></p>
-                <button style="background-color: var(--fb-green);" onclick="controlBuzzer('ON')"><i class="fas fa-volume-up"></i> ENABLE BUZZER</button>
-                <button style="background-color: var(--fb-red);" onclick="controlBuzzer('OFF')"><i class="fas fa-volume-off"></i> DISABLE BUZZER</button>
-                <button style="background-color: var(--fb-primary);" onclick="controlBuzzer('RESET')"><i class="fas fa-undo"></i> RESET ALERTS & BUZZER</button>
-                <p style="font-size: 0.8em; color: var(--fb-text-secondary); margin-top: 10px;">*RESET also resets alert spam status in PostgreSQL.</p>
             </div>
 
             <div class="control-group">
                 <h4><i class="fas fa-calendar-check" style="color: var(--fb-green);"></i> Catheter Maintenance Logging</h4>
-                <p style="color: var(--fb-text-secondary); margin-bottom: 10px;">Press this button to record a catheter change and reset the simulated weight.</p>
-                <button style="background-color: var(--fb-yellow); color: #202124;" onclick="logCatheterChange()"><i class="fas fa-plus"></i> LOG CATHETER CHANGE</button>
-                <p style="font-size: 0.8em; color: var(--fb-text-secondary); margin-top: 10px;">Total Changes: <strong id="controlChangeCount" style="color: var(--fb-yellow);">0</strong></p>
+                <p style="color: white; margin-bottom: 10px;" data-key="log_action_desc">Press this button to record a catheter change and reset the simulated weight.</p>
+                <button style="background-color: var(--fb-yellow); color: #202124;" onclick="logCatheterChange()"><i class="fas fa-plus"></i> <span data-key="btn_log">LOG CATHETER CHANGE</span></button>
+                <p style="font-size: 0.8em; color: var(--fb-text-secondary); margin-top: 10px;"><span data-key="lbl_total_changes">Total Changes:</span> <strong id="controlChangeCount" style="color: white;">0</strong></p>
             </div>
 
-            <div class="control-group" style="border-color: var(--fb-red);">
-                <h4><i class="fas fa-exclamation-triangle" style="color: var(--fb-red);"></i> Reset Data (DANGER ZONE)</h4>
-                <p style="color: var(--fb-text-secondary); margin-bottom: 10px;">Use only for testing. This will simulate deletion of ALL historical data in PostgreSQL.</p>
-                <button style="background-color: var(--fb-red); color: white;" onclick="resetAllData()"><i class="fas fa-trash-alt"></i> RESET ALL DATA</button>
+            <div class="control-group" style="border-color: var(--fb-primary);">
+                <h4><i class="fas fa-undo" style="color: white;"></i> Reset Log Counter</h4>
+                <p style="color: white; margin-bottom: 10px;" data-key="reset_log_desc">Press this button to reset the Total Catheter Changes count to 0.</p>
+                <button style="background-color: white; color: var(--fb-dark);" onclick="resetCatheterLog()"><i class="fas fa-sync"></i> <span data-key="btn_reset_log">RESET LOG CATHETER</span></button>
             </div>
+
         </div>
         
-        <!-- DEVICE STATUS PAGE -->
         <div id="contentDeviceStatus" class="page-content" style="display:none;">
             <div class="card">
-                <div class="card-title">Device & Network Status</div>
+                <div class="card-title" data-key="nav_device">Device & Network Status</div>
                 <div style="padding-top: 10px; line-height: 2;">
                     <p>IP Address ESP32-CAM: <strong style="color: var(--fb-yellow);" id="ipAddress">192.168.x.xxx</strong></p>
                     <p>API Flask Server: <strong style="color: var(--fb-green);">https://catheter-monitor-final.onrender.com</strong></p>
@@ -589,7 +507,6 @@
             </div>
         </div>
         
-        <!-- DEBUG CONSOLE PAGE -->
         <div id="contentDebug" class="page-content" style="display:none;">
             <div class="card">
                 <div class="card-title"><i class="fas fa-bug"></i> Real-Time Debug Console</div>
@@ -616,36 +533,12 @@
             
             <div class="card">
                 <div class="card-title"><i class="fas fa-info-circle"></i> API Response Data (Raw JSON)</div>
-                <pre id="rawAPIData" style="background-color: #1a1a1a; padding: 15px; border-radius: 4px; overflow-x: auto; color: var(--fb-text-light); font-size: 0.85em; max-height: 500px;">No data received yet. Click "Manual Refresh Data" to fetch from API.</pre>
-            </div>
-            
-            <div class="card">
-                <div class="card-title"><i class="fas fa-clipboard-check"></i> Troubleshooting Checklist</div>
-                <div style="line-height: 2; color: var(--fb-text-secondary);">
-                    <p><strong style="color: var(--fb-yellow);">If weight shows 0 or -- :</strong></p>
-                    <ol style="margin-left: 20px; margin-top: 10px;">
-                        <li>Check if API status shows "ONLINE" (top right)</li>
-                        <li>Click "Test API Connection" button above</li>
-                        <li>Look for "weight_kg is NULL" warning in console logs</li>
-                        <li>Verify ESP32 is sending POST requests to server</li>
-                        <li>Check Flask server logs for incoming requests</li>
-                    </ol>
-                    
-                    <p style="margin-top: 15px;"><strong style="color: var(--fb-red);">Common Issues:</strong></p>
-                    <ul style="margin-left: 20px; margin-top: 10px;">
-                        <li>ESP32 not connected to WiFi</li>
-                        <li>Wrong API endpoint in ESP32 code</li>
-                        <li>Flask server not running</li>
-                        <li>PostgreSQL connection error</li>
-                        <li>CORS blocking request from browser</li>
-                    </ul>
-                </div>
+                <pre id="rawAPIData" style="background-color: #1a1a1a; padding: 15px; border-radius: 4px; overflow-x: auto; color: var(--fb-text-light); font-size: 0.85em; max-height: 500px;">No data received yet.</pre>
             </div>
         </div>
 
     </div>
 
-    <!-- TOAST NOTIFICATION -->
     <div id="toast" style="position: fixed; bottom: 30px; right: 30px; background: var(--fb-card); padding: 15px; border-radius: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.6); color: var(--fb-text-light); display: none; z-index: 1000; border-left: 4px solid var(--fb-green); align-items: center; gap: 10px;">
         <i id="toastIcon" class="fas fa-check-circle" style="color: var(--fb-green); font-size: 1.5em;"></i>
         <div>
@@ -659,107 +552,153 @@
         const API_URL = "https://catheter-monitor-final.onrender.com/api/v1"; 
         const MAX_WEIGHT_KG = 1.5; 
         const FETCH_INTERVAL = 3000;
-        
+
+        // --- GLOBAL VARIABLES ---
         let detailedWeightChart = null;
         let chartsInitialized = { weight: false };
         let chartDataBuffer = { labels: [], weight: [] };
         let apiConnected = false;
         let fetchIntervalId = null;
+        let currentLang = localStorage.getItem('preferredLang') || 'en';
+        let catheterLogOffset = parseInt(localStorage.getItem('catheterLogOffset')) || 0;
+        let serverLatestCount = 0; 
         
+        // --- TRANSLATION DICTIONARY ---
+        const dictionary = {
+            en: {
+                nav_console: "CONSOLE",
+                nav_overview: "Project Overview",
+                nav_analytics: "CRITICAL ANALYTICS",
+                nav_history: "Urine Weight History",
+                nav_control: "CONTROL SYSTEM",
+                nav_config: "Maintenance Config",
+                nav_device: "Device Status",
+                nav_debug: "Debug Console",
+                last_updated: "Last updated:",
+                mission_title: "Project Mission & Goals",
+                group_members: "Group Members (Group 3)",
+                desc_p1: "This project focuses on developing an IoT-based catheter monitoring system to enhance patient safety and reduce the risk of catheter overflow. The system continuously monitors urine volume using a load cell sensor and sends real-time data to an IoT platform for remote monitoring.",
+                desc_li1: "Measures the weight of urine collected in the catheter bag in real time.",
+                desc_li2: "Activates a buzzer and sends notifications when preset weight thresholds are reached.",
+                crit_goals: "Critical Goals:",
+                desc_p2: "To provide timely alerts when the catheter bag reaches critical weight levels (e.g. 500g, 1000g, and 1500g), helping caregivers take immediate action to prevent overflow and improve patient care.",
+                lbl_weight: "Current Urine Weight (KG)",
+                lbl_status: "Urine Status Message (Level)",
+                lbl_total_changes: "Total Catheter Changes Logged",
+                chart_title: "Urine Weight Accumulation Trend (Last 50 Readings)",
+                chart_desc: "This chart shows the accumulation of urine weight over time with the critical 1.5kg limit.",
+                chart_legend: "Red dashed line: Critical Limit (1.5kg)",
+                log_title: "Catheter Maintenance Log",
+                col_date: "Date",
+                col_time: "Time",
+                tele_desc: "The Flask API manages notifications. Token/Chat ID configuration is stored in PostgreSQL.",
+                log_action_desc: "Press this button to record a catheter change and reset the simulated weight.",
+                btn_log: "LOG CATHETER CHANGE",
+                reset_log_desc: "Press this button to reset the Total Catheter Changes count to 0.",
+                btn_reset_log: "RESET LOG CATHETER"
+            },
+            ms: {
+                nav_console: "KONSOL",
+                nav_overview: "Gambaran Projek",
+                nav_analytics: "ANALITIK KRITIKAL",
+                nav_history: "Sejarah Berat Urine",
+                nav_control: "SISTEM KAWALAN",
+                nav_config: "Konfigurasi Penyelenggaraan",
+                nav_device: "Status Peranti",
+                nav_debug: "Konsol Debug",
+                last_updated: "Terakhir dikemas kini:",
+                mission_title: "Misi & Matlamat Projek",
+                group_members: "Ahli Kumpulan (Kumpulan 3)",
+                desc_p1: "Projek ini menumpukan kepada pembangunan sistem pemantauan kateter berasaskan IoT untuk meningkatkan keselamatan pesakit dan mengurangkan risiko limpahan kateter. Sistem ini memantau isipadu air kencing secara berterusan menggunakan sensor load cell dan menghantar data masa nyata ke platform IoT untuk pemantauan jarak jauh.",
+                desc_li1: "Mengukur berat air kencing yang dikumpul dalam beg kateter dalam masa nyata.",
+                desc_li2: "Mengaktifkan buzzer dan menghantar notifikasi apabila had berat pratetap dicapai.",
+                crit_goals: "Matlamat Kritikal:",
+                desc_p2: "Untuk memberikan amaran tepat pada masanya apabila beg kateter mencapai tahap berat kritikal (cth. 500g, 1000g, dan 1500g), membantu penjaga mengambil tindakan segera untuk mengelakkan limpahan dan meningkatkan penjagaan pesakit.",
+                lbl_weight: "Berat Urine Semasa (KG)",
+                lbl_status: "Mesej Status Urine (Tahap)",
+                lbl_total_changes: "Jumlah Penukaran Kateter Direkod",
+                chart_title: "Trend Pengumpulan Berat Urine (50 Bacaan Terakhir)",
+                chart_desc: "Graf ini menunjukkan pengumpulan berat air kencing dari masa ke masa dengan had kritikal 1.5kg.",
+                chart_legend: "Garis putus merah: Had Kritikal (1.5kg)",
+                log_title: "Log Penyelenggaraan Kateter",
+                col_date: "Tarikh",
+                col_time: "Masa",
+                tele_desc: "API Flask menguruskan notifikasi. Konfigurasi Token/Chat ID disimpan dalam PostgreSQL.",
+                log_action_desc: "Tekan butang ini untuk merekod penukaran kateter dan menetapkan semula berat simulasi.",
+                btn_log: "REKOD PENUKARAN KATETER",
+                reset_log_desc: "Tekan butang ini untuk menetapkan semula jumlah kiraan penukaran kateter kepada 0.",
+                btn_reset_log: "RESET LOG KATETER"
+            }
+        };
+
+        function setLanguage(lang) {
+            const keys = Object.keys(dictionary[lang]);
+            keys.forEach(key => {
+                const element = document.querySelector(`[data-key="${key}"]`);
+                if (element) {
+                    element.textContent = dictionary[lang][key];
+                }
+                if (key === 'desc_p1') document.getElementById('desc_p1').textContent = dictionary[lang][key];
+                if (key === 'desc_li1') document.getElementById('desc_li1').textContent = dictionary[lang][key];
+                if (key === 'desc_li2') document.getElementById('desc_li2').textContent = dictionary[lang][key];
+                if (key === 'desc_p2') document.getElementById('desc_p2').textContent = dictionary[lang][key];
+            });
+            const activePage = document.querySelector('.nav-item.active').getAttribute('data-page');
+            const pageTitleEl = document.getElementById('mainTitle');
+            const keyMap = { 'overview': 'nav_overview', 'weight_history': 'nav_history', 'alerts': 'nav_config', 'device_status': 'nav_device', 'debug': 'nav_debug' };
+            if(dictionary[lang][keyMap[activePage]]) pageTitleEl.textContent = dictionary[lang][keyMap[activePage]];
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active-lang'));
+            document.getElementById(`btn-${lang}`).classList.add('active-lang');
+            currentLang = lang;
+            localStorage.setItem('preferredLang', lang);
+        }
+
         const addDebugLog = (message, type = 'info') => {
             const debugLogs = document.getElementById('debugLogs');
             if (!debugLogs) return;
-            
             const timestamp = new Date().toLocaleTimeString();
             const logClass = type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : '';
-            
             const logEntry = document.createElement('div');
             logEntry.className = `debug-log ${logClass}`;
             logEntry.textContent = `[${timestamp}] ${message}`;
-            
             debugLogs.appendChild(logEntry);
             debugLogs.scrollTop = debugLogs.scrollHeight;
-            
-            const logs = debugLogs.querySelectorAll('.debug-log');
-            if (logs.length > 100) {
-                logs[0].remove();
-            }
-            
-            console.log(`[DEBUG ${type.toUpperCase()}] ${message}`);
         };
         
         window.clearDebugLogs = () => {
             const debugLogs = document.getElementById('debugLogs');
-            if (debugLogs) {
-                debugLogs.innerHTML = '<div class="debug-log">Logs cleared.</div>';
-            }
-            addDebugLog('Debug logs cleared by user', 'info');
+            if (debugLogs) debugLogs.innerHTML = '<div class="debug-log">Logs cleared.</div>';
         };
         
         window.testAPIConnection = async () => {
-            addDebugLog('=== TESTING API CONNECTION ===', 'info');
-            addDebugLog(`Target URL: ${API_URL}/status`, 'info');
-            
+            addDebugLog('Testing API...', 'info');
             try {
-                const startTime = Date.now();
-                const response = await fetch(API_URL + '/status', {
-                    method: 'GET',
-                    headers: { 'Accept': 'application/json' }
-                });
-                const endTime = Date.now();
-                const duration = endTime - startTime;
-                
-                addDebugLog(`Response Time: ${duration}ms`, 'info');
-                addDebugLog(`HTTP Status: ${response.status} ${response.statusText}`, response.ok ? 'success' : 'error');
-                
+                const response = await fetch(API_URL + '/status');
                 if (response.ok) {
-                    const data = await response.json();
-                    addDebugLog('✓ API Connection Successful!', 'success');
-                    addDebugLog(`→ Weight from API: ${data.current_metrics?.weight_kg ?? 'NULL'} kg`, data.current_metrics?.weight_kg ? 'success' : 'warning');
-                    addDebugLog(`→ Buzzer Status: ${data.current_metrics?.buzzer_status || 'NULL'}`, 'info');
-                    addDebugLog(`→ History entries: ${data.weight_history?.length || 0}`, 'info');
-                    addDebugLog(`→ Change logs: ${data.change_logs?.length || 0}`, 'info');
-                    
-                    if (!data.current_metrics?.weight_kg) {
-                        addDebugLog('⚠ WARNING: weight_kg is NULL!', 'warning');
-                        addDebugLog('⚠ ESP32 might not be sending data to server', 'warning');
-                    }
-                    
+                    addDebugLog('✓ API Connected!', 'success');
                     updateAPIStatus(true);
                 } else {
-                    addDebugLog(`✗ API returned error: ${response.statusText}`, 'error');
+                    addDebugLog('✗ API Error', 'error');
                     updateAPIStatus(false);
                 }
             } catch (error) {
-                addDebugLog(`✗ API Connection FAILED: ${error.message}`, 'error');
-                addDebugLog('→ Possible causes:', 'error');
-                addDebugLog('  - Server is offline', 'error');
-                addDebugLog('  - CORS policy blocking request', 'error');
-                addDebugLog('  - Network connectivity issue', 'error');
-                addDebugLog('  - Wrong API URL', 'error');
+                addDebugLog('✗ Connection Failed', 'error');
                 updateAPIStatus(false);
             }
-            
-            addDebugLog('=== TEST COMPLETED ===', 'info');
         };
         
-        window.manualRefresh = () => {
-            addDebugLog('Manual refresh triggered by user', 'info');
-            fetchDataFromAPI();
-        };
+        window.manualRefresh = () => fetchDataFromAPI();
         
         const updateAPIStatus = (connected) => {
             apiConnected = connected;
             const statusEl = document.getElementById('apiConnectionStatus');
             const esp32El = document.getElementById('esp32Connection');
-            
             if (statusEl) {
                 statusEl.textContent = connected ? 'API ONLINE' : 'API OFFLINE';
                 statusEl.className = connected ? 'connection-status online' : 'connection-status offline';
             }
-            
             if (esp32El) {
-                esp32El.textContent = connected ? 'Connected (based on API response)' : 'Disconnected';
+                esp32El.textContent = connected ? 'Connected' : 'Disconnected';
                 esp32El.style.color = connected ? 'var(--fb-green)' : 'var(--fb-red)';
             }
         };
@@ -772,67 +711,59 @@
         };
         
         const formatTimestamp = (ms) => {
-            const ms_int = parseInt(ms);
-            return new Date(ms_int).toLocaleTimeString('en-US', { 
-                hour: '2-digit', 
-                minute: '2-digit', 
-                second: '2-digit' 
+            let timestamp = parseInt(ms);
+            // Auto-fix if timestamp is in seconds (Python style) instead of milliseconds (JS style)
+            if (timestamp < 10000000000) timestamp *= 1000;
+            return new Date(timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        };
+
+        // --- SMART DATE FORMATTER (FIX 1970 & FORMAT ISSUE) ---
+        const formatDateMY = (val) => {
+            if (!val) return "--";
+            
+            let ms = parseInt(val);
+            // Fix 1: Check if it's seconds (Python often sends seconds, JS needs ms)
+            // If the number is small (less than 10 digits), it's likely seconds.
+            if (ms < 10000000000) {
+                ms *= 1000;
+            }
+
+            const date = new Date(ms);
+            
+            // Fix 2: Force DD/MM/YYYY format explicitly
+            return date.toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
             });
         };
         
         const DOM = (id) => document.getElementById(id);
-        
         const navItems = document.querySelectorAll('.nav-item');
         const sidebar = DOM('sidebar');
         const sidebarToggle = DOM('sidebarToggle');
 
-        const closeSidebar = () => {
-            if (window.innerWidth <= 768 && sidebar) {
-                sidebar.classList.remove('active');
-            }
-        };
-
+        const closeSidebar = () => { if (window.innerWidth <= 768 && sidebar) sidebar.classList.remove('active'); };
         const pageToContentId = (pageId) => {
-            return 'content' + pageId
-                .split('_')
-                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                .join('');
+            if(pageId === 'overview') return 'contentOverview';
+            if(pageId === 'weight_history') return 'contentWeightHistory';
+            if(pageId === 'alerts') return 'contentAlerts';
+            if(pageId === 'device_status') return 'contentDeviceStatus';
+            if(pageId === 'debug') return 'contentDebug';
+            return 'contentOverview';
         };
 
         const initCharts = (pageId) => {
-            if (typeof Chart === 'undefined') {
-                addDebugLog('Chart.js not loaded yet', 'warning');
-                return;
-            }
-            
+            if (typeof Chart === 'undefined') return;
             Chart.register(window['chartjs-plugin-annotation']); 
-
             const defaultOptions = {
-                responsive: true, 
-                maintainAspectRatio: false,
-                plugins: { 
-                    legend: { display: false }, 
-                    tooltip: { 
-                        bodyColor: '#202124', 
-                        titleColor: '#202124', 
-                        backgroundColor: '#F0F0F0', 
-                        borderColor: '#3c4043', 
-                        borderWidth: 1 
-                    } 
-                },
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { bodyColor: '#202124', titleColor: '#202124', backgroundColor: '#F0F0F0', borderColor: '#3c4043', borderWidth: 1 } },
                 scales: {
-                    y: { 
-                        ticks: { color: 'var(--chart-line)' }, 
-                        grid: { color: 'var(--chart-grid-line)' }, 
-                        title: { display: false } 
-                    },
-                    x: { 
-                        ticks: { color: 'var(--chart-line)' }, 
-                        grid: { display: false } 
-                    }
+                    y: { ticks: { color: '#FFFFFF' }, grid: { color: '#3c4043' }, title: { display: false } },
+                    x: { ticks: { color: '#FFFFFF' }, grid: { display: false } }
                 }
             };
-            
             if (pageId === 'weight_history' && !chartsInitialized.weight) {
                 const canvas = DOM('detailedWeightChart');
                 if (canvas) {
@@ -841,13 +772,9 @@
                         data: { 
                             labels: chartDataBuffer.labels, 
                             datasets: [{ 
-                                label: 'Weight (kg)', 
-                                data: chartDataBuffer.weight, 
-                                borderColor: 'var(--fb-primary)', 
-                                backgroundColor: 'rgba(26, 115, 232, 0.1)', 
-                                tension: 0.2, 
-                                pointRadius: 4, 
-                                pointBackgroundColor: 'var(--fb-primary)' 
+                                label: 'Weight (kg)', data: chartDataBuffer.weight, 
+                                borderColor: '#FFFFFF', backgroundColor: 'rgba(255, 255, 255, 0.1)', 
+                                tension: 0.2, pointRadius: 4, pointBackgroundColor: '#FFFFFF' 
                             }] 
                         },
                         options: { 
@@ -857,121 +784,60 @@
                                 annotation: { 
                                     annotations: { 
                                         criticalLimit: { 
-                                            type: 'line', 
-                                            yMin: MAX_WEIGHT_KG, 
-                                            yMax: MAX_WEIGHT_KG, 
-                                            borderColor: '#FFFFFF', 
-                                            borderWidth: 3, 
-                                            borderDash: [8, 4], 
-                                            label: { 
-                                                content: 'CRITICAL LIMIT (1.5 KG)', 
-                                                enabled: true, 
-                                                position: 'start', 
-                                                backgroundColor: 'var(--fb-red)',
-                                                color: '#FFFFFF'
-                                            } 
+                                            type: 'line', yMin: MAX_WEIGHT_KG, yMax: MAX_WEIGHT_KG, 
+                                            borderColor: '#FF0000', borderWidth: 3, borderDash: [8, 4], 
+                                            label: { content: 'CRITICAL LIMIT (1.5 KG)', enabled: true, position: 'start', backgroundColor: 'var(--fb-red)', color: '#FFFFFF'} 
                                         } 
                                     } 
                                 } 
                             }, 
                             scales: { 
                                 ...defaultOptions.scales, 
-                                y: { 
-                                    ...defaultOptions.scales.y, 
-                                    min: 0, 
-                                    max: MAX_WEIGHT_KG * 1.1, 
-                                    suggestedMax: MAX_WEIGHT_KG * 1.05, 
-                                    border: { color: 'var(--chart-grid-line)' }, 
-                                    title: { 
-                                        display: true, 
-                                        text: 'Urine Weight (KG)', 
-                                        color: 'var(--chart-line)' 
-                                    }, 
-                                    ticks: { color: 'var(--chart-line)' }, 
-                                    grid: { color: 'var(--chart-grid-line)' } 
-                                }, 
-                                x: { 
-                                    ...defaultOptions.scales.x, 
-                                    ticks: { color: 'var(--chart-line)' } 
-                                } 
+                                y: { ...defaultOptions.scales.y, min: 0, max: MAX_WEIGHT_KG * 1.1, suggestedMax: MAX_WEIGHT_KG * 1.05, border: { color: '#3c4043' }, title: { display: true, text: 'Urine Weight (KG)', color: '#FFFFFF' }, ticks: { color: '#FFFFFF' }, grid: { color: '#3c4043' } }, 
+                                x: { ...defaultOptions.scales.x, ticks: { color: '#FFFFFF' } } 
                             } 
                         }
                     });
                     chartsInitialized.weight = true;
-                    addDebugLog('Weight history chart initialized', 'success');
                 }
             }
         };
 
         const switchPage = (pageId) => {
-            addDebugLog(`Switching to page: ${pageId}`, 'info');
-            
-            document.querySelectorAll('.page-content').forEach(content => {
-                content.style.display = 'none';
-            });
-            
+            if (pageId === 'debug') {
+                const password = prompt("Enter Security Password:");
+                if (password !== "urotech123") { alert("Incorrect Password!"); return; }
+            }
+            document.querySelectorAll('.page-content').forEach(content => content.style.display = 'none');
             const contentId = pageToContentId(pageId);
             const activeContent = DOM(contentId); 
-            
-            if (!activeContent) {
-                addDebugLog(`ERROR: Content not found for ${contentId}`, 'error');
-                return;
-            }
-
+            if (!activeContent) return;
             activeContent.style.display = 'block';
             
             if (DOM('mainTitle')) {
-                DOM('mainTitle').textContent = pageId
-                    .replace(/_/g, ' ')
-                    .split(' ')
-                    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-                    .join(' ');
+                const keyMap = { 'overview': 'nav_overview', 'weight_history': 'nav_history', 'alerts': 'nav_config', 'device_status': 'nav_device', 'debug': 'nav_debug' };
+                DOM('mainTitle').textContent = dictionary[currentLang][keyMap[pageId]] || "Console";
             }
-
             navItems.forEach(item => {
                 item.classList.remove('active');
-                if (item.getAttribute('data-page') === pageId) {
-                    item.classList.add('active');
-                }
+                if (item.getAttribute('data-page') === pageId) item.classList.add('active');
             });
-            
             closeSidebar();
-
-            if (pageId === 'weight_history' && !chartsInitialized.weight) {
-                initCharts(pageId);
-            }
-
-            setTimeout(() => {
-                if (detailedWeightChart) detailedWeightChart.resize();
-            }, 100); 
+            if (pageId === 'weight_history' && !chartsInitialized.weight) initCharts(pageId);
+            setTimeout(() => { if (detailedWeightChart) detailedWeightChart.resize(); }, 100); 
         };
 
         const fetchDataFromAPI = async () => {
             try {
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 8000); 
-                
-                const response = await fetch(API_URL + '/status', { 
-                    signal: controller.signal,
-                    headers: { 'Accept': 'application/json' }
-                });
+                const response = await fetch(API_URL + '/status', { signal: controller.signal, headers: { 'Accept': 'application/json' } });
                 clearTimeout(timeoutId);
                 
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-
+                if (!response.ok) throw new Error("Network response was not ok");
                 const data = await response.json();
                 
-                if (DOM('rawAPIData')) {
-                    DOM('rawAPIData').textContent = JSON.stringify(data, null, 2);
-                }
-                
-                if (data.status === "error") {
-                    addDebugLog(`API returned error: ${data.message}`, 'error');
-                    throw new Error(data.message);
-                }
-                
+                if (DOM('rawAPIData')) DOM('rawAPIData').textContent = JSON.stringify(data, null, 2);
                 updateAPIStatus(true);
                 
                 const metrics = data.current_metrics || {};
@@ -982,7 +848,6 @@
                 updateCharts(history);
 
             } catch (error) {
-                addDebugLog(`Fetch error: ${error.message}`, 'error');
                 updateAPIStatus(false);
             }
         };
@@ -991,32 +856,20 @@
             const formattedWeight = metrics.weight_kg != null ? metrics.weight_kg.toFixed(2) : '--';
             if (DOM('currentWeightHistory')) DOM('currentWeightHistory').textContent = formattedWeight;
             
-            if (DOM('changeCountHistory')) DOM('changeCountHistory').textContent = metrics.change_count || 0; 
-            if (DOM('controlChangeCount')) DOM('controlChangeCount').textContent = metrics.change_count || 0; 
+            serverLatestCount = metrics.change_count || 0;
+            let displayCount = Math.max(0, serverLatestCount - catheterLogOffset);
             
-            if (DOM('buzzerStatus')) {
-                DOM('buzzerStatus').textContent = metrics.buzzer_status || 'OFF';
-                DOM('buzzerStatus').style.color = metrics.buzzer_status === 'ON' ? 'var(--fb-red)' : 'var(--fb-green)';
-            }
+            if (DOM('changeCountHistory')) DOM('changeCountHistory').textContent = displayCount; 
+            if (DOM('controlChangeCount')) DOM('controlChangeCount').textContent = displayCount; 
             
             let statusText = metrics.status_message || 'UNKNOWN';
-
             if (DOM('weightStatusMessage')) {
                 DOM('weightStatusMessage').textContent = statusText; 
-                if (metrics.alert_level === 'LEVEL_1500_DANGER') {
-                    DOM('weightStatusMessage').style.color = 'var(--fb-red)';
-                } else if (metrics.alert_level === 'LEVEL_1000_REACHED') {
-                    DOM('weightStatusMessage').style.color = 'var(--fb-yellow)';
-                } else {
-                    DOM('weightStatusMessage').style.color = 'var(--fb-green)';
-                }
+                if (metrics.alert_level === 'LEVEL_1500_DANGER') DOM('weightStatusMessage').style.color = 'var(--fb-red)';
+                else if (metrics.alert_level === 'LEVEL_1000_REACHED') DOM('weightStatusMessage').style.color = 'var(--fb-yellow)';
+                else DOM('weightStatusMessage').style.color = 'var(--fb-green)';
             }
-            
-            if (DOM('lastUpdatedTime') && history.length > 0) {
-                DOM('lastUpdatedTime').textContent = formatTimestamp(history[0].timestamp);
-            } else if (DOM('lastUpdatedTime')) {
-                DOM('lastUpdatedTime').textContent = new Date().toLocaleTimeString();
-            }
+            if (DOM('lastUpdatedTime') && history.length > 0) DOM('lastUpdatedTime').textContent = formatTimestamp(history[0].timestamp);
             
             updateChangeLog(changeLogs, DOM('changeLogBodyHistory'));
         };
@@ -1025,16 +878,9 @@
             if (history.length >= 2) {
                 chartDataBuffer.labels = history.map(h => formatTimestamp(h.timestamp));
                 chartDataBuffer.weight = history.map(h => h.weight || 0);
-                
                 if (detailedWeightChart) {
                     detailedWeightChart.data.labels = chartDataBuffer.labels;
                     detailedWeightChart.data.datasets[0].data = chartDataBuffer.weight;
-                    detailedWeightChart.update('none');
-                }
-            } else {
-                if (detailedWeightChart) {
-                    detailedWeightChart.data.labels = [];
-                    detailedWeightChart.data.datasets[0].data = [];
                     detailedWeightChart.update('none');
                 }
             }
@@ -1042,148 +888,73 @@
 
         const updateChangeLog = (changeLogs, targetElement) => {
             if (!targetElement) return;
-            
             let logHtml = '';
+            
+            let displayCount = Math.max(0, serverLatestCount - catheterLogOffset);
+            
+            if (displayCount === 0) {
+                 targetElement.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 10px; color: var(--fb-text-secondary);">No records found.</td></tr>';
+                 return;
+            }
+
             changeLogs.forEach(log => {
                 logHtml += `
                     <tr>
                         <td style="color: var(--fb-primary);">${log.id}</td>
-                        <td style="color: var(--fb-text-light);">${new Date(log.timestamp).toLocaleDateString()}</td>
-                        <td style="color: var(--fb-text-light);">${formatTimestamp(new Date(log.timestamp).getTime())}</td>
+                        <td style="color: white;">${formatDateMY(log.timestamp)}</td>
+                        <td style="color: white;">${formatTimestamp(log.timestamp)}</td>
                     </tr>
                 `;
             });
-
-            targetElement.innerHTML = logHtml.length > 0 ? logHtml : 
-                '<tr><td colspan="3" style="text-align: center; padding: 10px; color: var(--fb-text-secondary);">No catheter change records found.</td></tr>';
-        };
-
-        window.controlBuzzer = async (command) => {
-            addDebugLog(`Sending buzzer command: ${command}`, 'info');
-            try {
-                const response = await fetch(API_URL + '/control_buzzer', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ command: command })
-                });
-                
-                if (response.ok) {
-                    showToast('Control Sent', `Buzzer command: ${command} sent successfully.`, command === 'ON' ? 'danger' : 'success');
-                    addDebugLog(`✓ Buzzer ${command} command successful`, 'success');
-                    setTimeout(fetchDataFromAPI, 500);
-                } else {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-            } catch (error) {
-                showToast('API Error', `Failed to send command: ${error.message}`, 'danger');
-                addDebugLog(`✗ Buzzer command failed: ${error.message}`, 'error');
-            }
+            targetElement.innerHTML = logHtml.length > 0 ? logHtml : '<tr><td colspan="3" style="text-align: center; padding: 10px; color: var(--fb-text-secondary);">No records found.</td></tr>';
         };
 
         window.logCatheterChange = async () => {
-            addDebugLog('Logging catheter change...', 'info');
+            addDebugLog('Logging change...', 'info');
             try {
-                const response = await fetch(API_URL + '/log_change', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({})
-                });
-                
+                const response = await fetch(API_URL + '/log_change', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
                 if (response.ok) {
-                    showToast('Success', 'Catheter change logged and weight reset.', 'success');
-                    addDebugLog('✓ Catheter change logged successfully', 'success');
+                    showToast('Success', 'Catheter change logged.', 'success');
                     setTimeout(fetchDataFromAPI, 500);
-                } else {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-            } catch (error) {
-                showToast('API Error', `Failed to log change: ${error.message}`, 'danger');
-                addDebugLog(`✗ Log catheter change failed: ${error.message}`, 'error');
-            }
-        };
-        
-        window.resetAllData = () => { 
-            if (confirm('Are you sure you want to RESET ALL DATA? This action cannot be undone!')) {
-                addDebugLog('RESET ALL DATA command triggered (simulated)', 'warning');
-                showToast('Simulated', 'RESET ALL DATA command would execute here.', 'danger'); 
-            }
+                } else throw new Error("Failed");
+            } catch (error) { showToast('Error', 'Failed to log change', 'danger'); }
         };
 
-        window.showToast = (title, message, type = 'info', duration = 4000) => {
+        window.resetCatheterLog = async () => {
+            if(!confirm("Are you sure you want to reset the Log Count to 0?")) return;
+            addDebugLog('Resetting log count locally...', 'warning');
+            catheterLogOffset = serverLatestCount;
+            localStorage.setItem('catheterLogOffset', catheterLogOffset);
+            if (DOM('changeCountHistory')) DOM('changeCountHistory').textContent = "0";
+            if (DOM('controlChangeCount')) DOM('controlChangeCount').textContent = "0";
+            if (DOM('changeLogBodyHistory')) DOM('changeLogBodyHistory').innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 10px; color: var(--fb-text-secondary);">No records found.</td></tr>';
+            showToast('Reset Success', 'Catheter Log Count reset to 0.', 'success');
+        };
+
+        window.showToast = (title, message, type = 'info') => {
             const toast = DOM('toast');
-            const toastTitle = DOM('toastTitle');
-            const toastMessage = DOM('toastMessage');
-            const toastIcon = DOM('toastIcon');
-            
             if (!toast) return;
-
-            let color = 'var(--fb-primary)';
-            let iconClass = 'fas fa-info-circle';
-
-            if (type === 'success') { 
-                color = 'var(--fb-green)'; 
-                iconClass = 'fas fa-check-circle'; 
-            } else if (type === 'danger') { 
-                color = 'var(--fb-red)'; 
-                iconClass = 'fas fa-exclamation-triangle'; 
-            } else if (type === 'info') { 
-                color = 'var(--fb-yellow)'; 
-                iconClass = 'fas fa-exclamation-circle'; 
-            }
-
+            const color = type === 'success' ? 'var(--fb-green)' : type === 'danger' ? 'var(--fb-red)' : 'var(--fb-primary)';
+            DOM('toastTitle').style.color = color;
+            DOM('toastTitle').textContent = title;
+            DOM('toastMessage').textContent = message;
             toast.style.borderLeftColor = color;
-            toastTitle.style.color = color;
-            toastTitle.textContent = title;
-            toastMessage.textContent = message;
-            toastIcon.className = iconClass;
-            toastIcon.style.color = color;
-
+            DOM('toastIcon').style.color = color;
             toast.style.display = 'flex';
             toast.style.opacity = '1';
-            
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                setTimeout(() => toast.style.display = 'none', 500);
-            }, duration);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.style.display = 'none', 500); }, 3000);
         };
 
         document.addEventListener('DOMContentLoaded', () => {
-            addDebugLog('=== DASHBOARD INITIALIZATION ===', 'success');
-            addDebugLog(`API URL: ${API_URL}`, 'info');
-            addDebugLog(`Fetch Interval: ${FETCH_INTERVAL}ms`, 'info');
-            
-            navItems.forEach(item => {
-                item.addEventListener('click', () => {
-                    const pageId = item.getAttribute('data-page');
-                    switchPage(pageId);
-                });
-            });
-            
-            if (sidebarToggle) {
-                sidebarToggle.addEventListener('click', function() {
-                    if (sidebar) sidebar.classList.toggle('active');
-                });
-            }
-            
+            navItems.forEach(item => item.addEventListener('click', () => switchPage(item.getAttribute('data-page'))));
+            if (sidebarToggle) sidebarToggle.addEventListener('click', () => sidebar.classList.toggle('active'));
+            setLanguage(currentLang);
             switchPage('overview'); 
-            
-            addDebugLog('Testing initial API connection...', 'info');
             testAPIConnection();
-            
             fetchIntervalId = setInterval(fetchDataFromAPI, FETCH_INTERVAL); 
-            addDebugLog(`Auto-refresh enabled (every ${FETCH_INTERVAL/1000}s)`, 'success');
-            
-            setInterval(() => {
-                if (DOM('deviceUptime')) {
-                    const uptime = Math.floor((Date.now() - window.startTime) / 1000);
-                    DOM('deviceUptime').textContent = formatTime(uptime);
-                }
-            }, 1000);
-            
+            setInterval(() => { if (DOM('deviceUptime')) { const uptime = Math.floor((Date.now() - window.startTime) / 1000); DOM('deviceUptime').textContent = formatTime(uptime); } }, 1000);
             window.startTime = Date.now();
-            addDebugLog('=== INITIALIZATION COMPLETE ===', 'success');
         });
-
     </script>
 </body>
 </html>
