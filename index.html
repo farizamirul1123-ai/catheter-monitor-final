@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catheter Monitoring System | Group 3</title> 
+    <title>UROTECH Console | Group 3</title> 
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
@@ -52,21 +52,21 @@
         
         .logo-section {
             padding: 15px 25px;
-            font-size: 1.1em;
-            font-weight: 700; /* Bold */
+            font-size: 1.3em; /* Besar sikit */
+            font-weight: 800; /* Tebal */
             color: var(--fb-text-light);
             display: flex;
             align-items: center;
-            gap: 15px; /* Jarak antara logo dan teks */
+            gap: 15px; 
             border-bottom: 1px solid #3c4043;
             margin-bottom: 10px;
+            letter-spacing: 1px;
         }
 
-        /* STYLE UNTUK LOGO */
         .logo-img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%; /* Bulat */
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
             object-fit: cover;
             border: 2px solid var(--fb-primary);
         }
@@ -131,7 +131,6 @@
             #sidebarToggle { display: block; }
             .metric-grid { grid-template-columns: 1fr !important; gap: 15px; }
             
-            /* FIX FOR GROUP MEMBERS CARD ON MOBILE */
             .project-details-grid { grid-template-columns: 1fr !important; }
             .team-member-card {
                 flex-direction: row; 
@@ -202,7 +201,7 @@
         }
         .control-group h4 { color: var(--fb-primary); margin-bottom: 10px; font-size: 1.05em; font-weight: 600; }
         .control-group button {
-            padding: 8px 12px; border: none; border-radius: 4px; color: white;
+            padding: 10px 15px; border: none; border-radius: 4px; color: white;
             font-weight: 600; cursor: pointer; transition: background-color 0.2s;
             margin-right: 8px; margin-top: 5px; font-size: 0.9em;
         }
@@ -238,7 +237,8 @@
     <div class="sidebar" id="sidebar">
         <div class="logo-section">
             <img src="/static/fpf.jpg" alt="Logo" class="logo-img">
-            <span>UROTECH</span> </div>
+            <span>UROTECH</span>
+        </div>
 
         <div class="lang-btn-group">
             <button class="lang-btn" id="btn-ms" onclick="setLanguage('ms')">Bahasa Malaysia</button>
@@ -409,9 +409,16 @@
             </div>
 
             <div class="control-group" style="border-color: var(--fb-primary);">
-                <h4><i class="fas fa-undo" style="color: white;"></i> Reset Log Counter (Local)</h4>
-                <p style="color: white; margin-bottom: 10px;" data-key="reset_log_desc">Press this button to reset the Total Catheter Changes count to 0 (This device only).</p>
-                <button style="background-color: white; color: var(--fb-dark);" onclick="resetCatheterLog()"><i class="fas fa-sync"></i> <span data-key="btn_reset_log">RESET LOG CATHETER</span></button>
+                <h4 id="title_data_mgmt">Data Management (Export & Reset)</h4>
+                <p style="color: white; margin-bottom: 10px;" id="desc_data_mgmt">Download maintenance logs to Excel before clearing them from the system.</p>
+                
+                <button style="background-color: var(--fb-green);" onclick="exportExcel()">
+                    <i class="fas fa-file-excel"></i> <span data-key="btn_export">EXPORT EXCEL / CSV</span>
+                </button>
+
+                <button style="background-color: var(--fb-red);" onclick="clearServerLogs()">
+                    <i class="fas fa-trash-alt"></i> <span data-key="btn_clear_server">CLEAR ALL LOGS (START FRESH)</span>
+                </button>
             </div>
 
         </div>
@@ -431,30 +438,15 @@
         <div id="contentDebug" class="page-content" style="display:none;">
             <div class="card">
                 <div class="card-title"><i class="fas fa-bug"></i> Real-Time Debug Console</div>
-                
                 <div style="margin-bottom: 20px;">
-                    <button style="background-color: var(--fb-primary); padding: 10px 20px; border: none; border-radius: 4px; color: white; cursor: pointer; margin-right: 10px; font-weight: 600;" onclick="testAPIConnection()">
-                        <i class="fas fa-plug"></i> Test API Connection
-                    </button>
-                    <button style="background-color: var(--fb-green); padding: 10px 20px; border: none; border-radius: 4px; color: white; cursor: pointer; margin-right: 10px; font-weight: 600;" onclick="manualRefresh()">
-                        <i class="fas fa-sync"></i> Manual Refresh Data
-                    </button>
-                    <button style="background-color: var(--fb-red); padding: 10px 20px; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: 600;" onclick="clearDebugLogs()">
-                        <i class="fas fa-trash"></i> Clear Logs
-                    </button>
+                    <button style="background-color: var(--fb-primary); padding: 10px 20px; border: none; border-radius: 4px; color: white; cursor: pointer; margin-right: 10px; font-weight: 600;" onclick="testAPIConnection()"><i class="fas fa-plug"></i> Test API</button>
+                    <button style="background-color: var(--fb-green); padding: 10px 20px; border: none; border-radius: 4px; color: white; cursor: pointer; margin-right: 10px; font-weight: 600;" onclick="manualRefresh()"><i class="fas fa-sync"></i> Refresh Data</button>
+                    <button style="background-color: var(--fb-red); padding: 10px 20px; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: 600;" onclick="clearDebugLogs()"><i class="fas fa-trash"></i> Clear Logs</button>
                 </div>
-                
                 <div class="debug-console" id="debugConsole">
                     <h4><i class="fas fa-terminal"></i> Console Output</h4>
-                    <div id="debugLogs">
-                        <div class="debug-log">System initialized. Waiting for API calls...</div>
-                    </div>
+                    <div id="debugLogs"><div class="debug-log">System initialized. Waiting for API calls...</div></div>
                 </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-title"><i class="fas fa-info-circle"></i> API Response Data (Raw JSON)</div>
-                <pre id="rawAPIData" style="background-color: #1a1a1a; padding: 15px; border-radius: 4px; overflow-x: auto; color: var(--fb-text-light); font-size: 0.85em; max-height: 500px;">No data received yet.</pre>
             </div>
         </div>
 
@@ -468,21 +460,15 @@
         </div>
     </div>
 
-
     <script> 
         const API_URL = "https://catheter-monitor-final.onrender.com/api/v1"; 
         const MAX_WEIGHT_KG = 1.5; 
         const FETCH_INTERVAL = 3000;
 
-        // --- GLOBAL VARIABLES ---
         let detailedWeightChart = null;
         let chartsInitialized = { weight: false };
         let chartDataBuffer = { labels: [], weight: [] };
-        let apiConnected = false;
-        let fetchIntervalId = null;
         let currentLang = localStorage.getItem('preferredLang') || 'en';
-        let catheterLogOffset = parseInt(localStorage.getItem('catheterLogOffset')) || 0;
-        let serverLatestCount = 0; 
         
         // --- TRANSLATION DICTIONARY ---
         const dictionary = {
@@ -500,7 +486,6 @@
                 group_members: "Group Members (Group 3)",
                 desc_p1: "This project focuses on developing an IoT-based catheter monitoring system to enhance patient safety and reduce the risk of catheter overflow. The system continuously monitors urine volume using a load cell sensor and sends real-time data to an IoT platform for remote monitoring.",
                 
-                // NEW KEYS FOR TRANSLATION
                 title_weight: "Weight Monitoring Module:",
                 title_alert: "Alert System:",
                 
@@ -520,8 +505,12 @@
                 tele_desc: "The Flask API manages notifications. Token/Chat ID configuration is stored in PostgreSQL.",
                 log_action_desc: "Press this button to record a catheter change and reset the simulated weight.",
                 btn_log: "LOG CATHETER CHANGE",
-                reset_log_desc: "Press this button to reset the Total Catheter Changes count to 0 (Local View Only).",
-                btn_reset_log: "RESET LOG CATHETER",
+                
+                // NEW KEYS
+                title_data_mgmt: "Data Management (Export & Reset)",
+                desc_data_mgmt: "Download maintenance logs to Excel before clearing them from the system.",
+                btn_export: "EXPORT EXCEL / CSV",
+                btn_clear_server: "CLEAR ALL LOGS (START FRESH)",
                 
                 status_safe: "Catheter still in safe level",
                 status_warning: "Warning: Level approaching limit",
@@ -542,7 +531,6 @@
                 group_members: "Ahli Kumpulan (Kumpulan 3)",
                 desc_p1: "Projek ini menumpukan kepada pembangunan sistem pemantauan kateter berasaskan IoT untuk meningkatkan keselamatan pesakit dan mengurangkan risiko limpahan kateter. Sistem ini memantau isipadu air kencing secara berterusan menggunakan sensor load cell dan menghantar data masa nyata ke platform IoT untuk pemantauan jarak jauh.",
                 
-                // TRANSLATION BARU
                 title_weight: "Modul Pemantauan Berat:",
                 title_alert: "Sistem Amaran:",
 
@@ -562,8 +550,12 @@
                 tele_desc: "API Flask menguruskan notifikasi. Konfigurasi Token/Chat ID disimpan dalam PostgreSQL.",
                 log_action_desc: "Tekan butang ini untuk merekod penukaran kateter dan menetapkan semula berat simulasi.",
                 btn_log: "REKOD PENUKARAN KATETER",
-                reset_log_desc: "Tekan butang ini untuk menetapkan semula jumlah kiraan penukaran kateter kepada 0 (Paparan Sini Sahaja).",
-                btn_reset_log: "RESET LOG KATETER",
+                
+                // NEW KEYS
+                title_data_mgmt: "Pengurusan Data (Eksport & Padam)",
+                desc_data_mgmt: "Muat turun log penyelenggaraan ke Excel sebelum memadamnya dari sistem.",
+                btn_export: "EKSPORT EXCEL / CSV",
+                btn_clear_server: "PADAM SEMUA LOG (MULA BARU)",
 
                 status_safe: "Kateter masih berada dalam paras selamat",
                 status_warning: "Amaran: Paras menghampiri had",
@@ -578,15 +570,17 @@
                 const element = document.querySelector(`[data-key="${key}"]`);
                 if (element) element.textContent = dictionary[lang][key];
                 
-                // Specific IDs
                 if (key === 'desc_p1') document.getElementById('desc_p1').textContent = dictionary[lang][key];
                 if (key === 'desc_li1') document.getElementById('desc_li1').textContent = dictionary[lang][key];
                 if (key === 'desc_li2') document.getElementById('desc_li2').textContent = dictionary[lang][key];
                 if (key === 'desc_p2') document.getElementById('desc_p2').textContent = dictionary[lang][key];
                 
-                // NEW: Handle Titles for Weight & Alert
                 if (key === 'title_weight') document.getElementById('title_weight').textContent = dictionary[lang][key];
                 if (key === 'title_alert') document.getElementById('title_alert').textContent = dictionary[lang][key];
+                
+                // New elements
+                if (key === 'title_data_mgmt') document.getElementById('title_data_mgmt').textContent = dictionary[lang][key];
+                if (key === 'desc_data_mgmt') document.getElementById('desc_data_mgmt').textContent = dictionary[lang][key];
             });
             
             const activePage = document.querySelector('.nav-item.active').getAttribute('data-page');
@@ -639,7 +633,6 @@
         window.manualRefresh = () => fetchDataFromAPI();
         
         const updateAPIStatus = (connected) => {
-            apiConnected = connected;
             const statusEl = document.getElementById('apiConnectionStatus');
             const esp32El = document.getElementById('esp32Connection');
             if (statusEl) {
@@ -799,11 +792,8 @@
             const formattedWeight = metrics.weight_kg != null ? metrics.weight_kg.toFixed(2) : '--';
             if (DOM('currentWeightHistory')) DOM('currentWeightHistory').textContent = formattedWeight;
             
-            serverLatestCount = metrics.change_count || 0;
-            let displayCount = Math.max(0, serverLatestCount - catheterLogOffset);
-            
-            if (DOM('changeCountHistory')) DOM('changeCountHistory').textContent = displayCount; 
-            if (DOM('controlChangeCount')) DOM('controlChangeCount').textContent = displayCount; 
+            if (DOM('changeCountHistory')) DOM('changeCountHistory').textContent = metrics.change_count || 0; 
+            if (DOM('controlChangeCount')) DOM('controlChangeCount').textContent = metrics.change_count || 0; 
             
             let alertLevel = metrics.alert_level || 'UNKNOWN';
             let statusText = dictionary[currentLang]['status_unknown'];
@@ -844,13 +834,6 @@
         const updateChangeLog = (changeLogs, targetElement) => {
             if (!targetElement) return;
             let logHtml = '';
-            let displayCount = Math.max(0, serverLatestCount - catheterLogOffset);
-            
-            if (displayCount === 0) {
-                 targetElement.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 10px; color: var(--fb-text-secondary);">No records found.</td></tr>';
-                 return;
-            }
-
             changeLogs.forEach(log => {
                 logHtml += `
                     <tr>
@@ -874,15 +857,33 @@
             } catch (error) { showToast('Error', 'Failed to log change', 'danger'); }
         };
 
-        window.resetCatheterLog = async () => {
-            if(!confirm("NOTE: This only resets the counter on THIS DEVICE. It does not delete data from the server. Continue?")) return;
-            addDebugLog('Resetting log count locally...', 'warning');
-            catheterLogOffset = serverLatestCount;
-            localStorage.setItem('catheterLogOffset', catheterLogOffset);
-            if (DOM('changeCountHistory')) DOM('changeCountHistory').textContent = "0";
-            if (DOM('controlChangeCount')) DOM('controlChangeCount').textContent = "0";
-            if (DOM('changeLogBodyHistory')) DOM('changeLogBodyHistory').innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 10px; color: var(--fb-text-secondary);">No records found.</td></tr>';
-            showToast('Reset Success', 'Counter hidden on this device.', 'success');
+        // --- NEW FUNCTION: EXPORT EXCEL ---
+        window.exportExcel = () => {
+            // Ini akan memanggil endpoint Python yang kita baru buat
+            // Browser akan automatik start download
+            window.location.href = API_URL + '/export_maintenance_log';
+            showToast('Downloading', 'Preparing Excel file...', 'info');
+        };
+
+        // --- NEW FUNCTION: CLEAR SERVER LOGS ---
+        window.clearServerLogs = async () => {
+            if(!confirm("⚠️ WARNING: This will DELETE ALL HISTORY from the SERVER.\n\nAll devices (Laptop/Phone) will be reset to 0.\nHave you exported the data first?\n\nContinue?")) return;
+            
+            addDebugLog('Clearing server logs...', 'warning');
+            try {
+                const response = await fetch(API_URL + '/clear_maintenance_log', { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({}) 
+                });
+                
+                if (response.ok) {
+                    showToast('System Reset', 'All history cleared. System restarted.', 'success');
+                    // Reset Local Offset just in case
+                    localStorage.setItem('catheterLogOffset', 0);
+                    setTimeout(fetchDataFromAPI, 1000);
+                } else throw new Error("Failed");
+            } catch (error) { showToast('Error', 'Failed to clear logs', 'danger'); }
         };
 
         window.showToast = (title, message, type = 'info') => {

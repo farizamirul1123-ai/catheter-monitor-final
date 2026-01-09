@@ -1,9 +1,11 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
 import psycopg2
 from datetime import datetime, timedelta
 import requests 
-import os # Import os untuk baca environment variables
+import os 
+import io
+import csv
 
 app = Flask(__name__)
 CORS(app) 
@@ -14,21 +16,17 @@ CORS(app)
 
 def get_db_connection():
     """Menyambung ke PostgreSQL menggunakan pembolehubah persekitaran (untuk Awan) atau konfigurasi tempatan."""
-    
-    # 1. CUBA GUNA CLOUD DB URL (dipanggil 'DATABASE_URL' di Render/Heroku)
     database_url = os.environ.get('DATABASE_URL')
     
     if database_url:
-        print("🌐 Connecting to Cloud PostgreSQL...")
-        # psycopg2 boleh menggunakan URL penuh untuk sambungan
+        # print("🌐 Connecting to Cloud PostgreSQL...") # Optional: Boleh comment out untuk kurangkan log
         return psycopg2.connect(database_url)
     else:
-        # 2. FAILBACK KE LOCAL DB (untuk testing di komputer anda)
-        print("🏠 Connecting to Local PostgreSQL...")
+        # print("🏠 Connecting to Local PostgreSQL...")
         return psycopg2.connect(
             dbname="catheter_db", 
             user="postgres", 
-            password="Safiah_2706", # <--- GANTI INI
+            password="Safiah_2706", 
             host="localhost", 
             port="5432"
         )
@@ -36,9 +34,7 @@ def get_db_connection():
 # ==================================
 # 2. TELEGRAM AND CONFIGURATION FUNCTIONS
 # ==================================
-# (Fungsi-fungsi ini kekal seperti sedia ada)
 def get_config(conn, key):
-    """Retrieves configuration value from global_config table."""
     cur = conn.cursor()
     try:
         cur.execute("SELECT value FROM global_config WHERE key = %s;", (key,))
@@ -48,7 +44,6 @@ def get_config(conn, key):
         cur.close()
 
 def update_config(conn, key, value):
-    """Updates configuration value."""
     cur = conn.cursor()
     try:
         cur.execute("UPDATE global_config SET value = %s WHERE key = %s;", (value, key))
@@ -57,7 +52,6 @@ def update_config(conn, key, value):
         cur.close()
 
 def send_telegram_message(token, chat_id, message):
-    """Sends message via Telegram Bot API."""
     if not token or not chat_id:
         print("🔔 Telegram config missing. Skipping notification.")
         return False
@@ -83,13 +77,10 @@ def send_telegram_message(token, chat_id, message):
 
 @app.route('/api/v1/log_data', methods=['POST'])
 def log_data():
-    """Receives data from ESP32 (HTTP POST) and logs it to patient_data."""
-    
     data = request.json
     if not data:
         return jsonify({"status": "error", "message": "No data received"}), 400
 
-    # Data Extraction and cleaning for safety
     try:
         weight = float(data.get('weight_kg', 0.0))
         status = data.get('status_message', 'Data Received')
@@ -109,7 +100,6 @@ def log_data():
         conn = get_db_connection()
         cur = conn.cursor()
         
-        # INSERT patient_data
         sql_insert = """
         INSERT INTO patient_data (
             timestamp_utc, urine_weight_kg, status_message, alert_level, 
@@ -118,52 +108,43 @@ def log_data():
         """
         cur.execute(sql_insert, (weight, status, alert, pyuria_status, pyuria_conf, buzzer))
         conn.commit()
-        print(f"✅ New data recorded to PG: {weight} kg, Pyuria: {pyuria_status}")
         
-        # =========================================================
-        # TELEGRAM PUSH LOGIC (SERVER-SIDE)
-        # =========================================================
+        # TELEGRAM LOGIC
         token = get_config(conn, 'TELEGRAM_BOT_TOKEN')
         chat_id = get_config(conn, 'TELEGRAM_CHAT_ID')
 
-        # 1. PYURIA ALERT LOGIC
+        # 1. PYURIA ALERT
         if pyuria_status == True and pyuria_conf >= 0.70:
             last_alert = get_config(conn, 'LAST_PYURIA_ALERT_SENT')
             if last_alert != 'PYURIA_ALERT_SENT':
-                message = f"<b>🚨 PYURIA ALERT DETECTED!</b>\n" \
-                          f"Immediate action required to prevent infection.\n" \
-                          f"AI Confidence: {(pyuria_conf * 100):.1f}%"
+                message = f"<b>🚨 PYURIA ALERT DETECTED!</b>\nAI Confidence: {(pyuria_conf * 100):.1f}%"
                 send_telegram_message(token, chat_id, message)
                 update_config(conn, 'LAST_PYURIA_ALERT_SENT', 'PYURIA_ALERT_SENT')
         elif get_config(conn, 'LAST_PYURIA_ALERT_SENT') == 'PYURIA_ALERT_SENT' and pyuria_status == False:
             update_config(conn, 'LAST_PYURIA_ALERT_SENT', 'NONE')
         
-        # 2. WEIGHT ALERT LOGIC (1.0 KG / 1.5 KG)
+        # 2. WEIGHT ALERT
         if weight >= 1.0:
             last_weight_alert = get_config(conn, 'LAST_WEIGHT_ALERT_SENT')
             
             if weight >= 1.5 and last_weight_alert != 'WEIGHT_1500_SENT':
-                message = f"<b>🚨🚨 CRITICAL LIMIT (1.5 KG) REACHED!</b>\n" \
-                          f"Current Weight: {weight:.2f} kg\n" \
-                          f"Change catheter IMMEDIATELY!"
+                message = f"<b>🚨🚨 CRITICAL LIMIT (1.5 KG) REACHED!</b>\nCurrent Weight: {weight:.2f} kg\nChange catheter IMMEDIATELY!"
                 send_telegram_message(token, chat_id, message)
                 update_config(conn, 'LAST_WEIGHT_ALERT_SENT', 'WEIGHT_1500_SENT')
                 
             elif weight >= 1.0 and weight < 1.5 and last_weight_alert not in ['WEIGHT_1000_SENT', 'WEIGHT_1500_SENT']:
-                 message = f"<b>⚠️ WEIGHT WARNING (1.0 KG)</b>\n" \
-                           f"Current Weight: {weight:.2f} kg\n" \
-                           f"Catheter change is due soon."
+                 message = f"<b>⚠️ WEIGHT WARNING (1.0 KG)</b>\nCurrent Weight: {weight:.2f} kg"
                  send_telegram_message(token, chat_id, message)
                  update_config(conn, 'LAST_WEIGHT_ALERT_SENT', 'WEIGHT_1000_SENT')
         
         elif weight < 0.5 and get_config(conn, 'LAST_WEIGHT_ALERT_SENT') != 'NONE':
              update_config(conn, 'LAST_WEIGHT_ALERT_SENT', 'NONE')
 
-        return jsonify({"status": "success", "message": "Data logged, alerts processed"}), 200
+        return jsonify({"status": "success", "message": "Data logged"}), 200
 
     except Exception as e:
         if conn: conn.rollback()
-        print(f"❌ CRITICAL ERROR in log_data (HTTP 500): {e}") 
+        print(f"❌ CRITICAL ERROR: {e}") 
         return jsonify({"status": "error", "message": str(e)}), 500
     finally:
         if conn: conn.close()
@@ -174,19 +155,16 @@ def log_data():
 
 @app.route('/', methods=['GET'])
 def index():
-    """Menghidangkan fail index.html dari server Flask."""
     return open('index.html', 'r').read()
-
 
 @app.route('/api/v1/status', methods=['GET'])
 def get_status_data():
-    """Retrieves latest metrics and history for the main dashboard."""
     conn = None
     try:
         conn = get_db_connection()
         cur = conn.cursor()
         
-        # Get Latest Metrics
+        # Latest Metrics
         cur.execute("""
             SELECT urine_weight_kg, status_message, alert_level, buzzer_status, 
                    pyuria_status, pyuria_confidence
@@ -195,7 +173,7 @@ def get_status_data():
         """)
         latest_data = cur.fetchone()
         
-        # Get History (50 records)
+        # History (50 records)
         cur.execute("""
             SELECT EXTRACT(EPOCH FROM timestamp_utc) * 1000 AS timestamp_ms, 
                    urine_weight_kg, pyuria_confidence
@@ -204,13 +182,13 @@ def get_status_data():
         """)
         history = cur.fetchall()
         
-        # Get Maintenance Count
+        # Maintenance Count
         cur.execute("SELECT COUNT(*) FROM catheter_maintenance;")
         change_count = cur.fetchone()[0]
         
-        # Get Change Logs
+        # Change Logs
         cur.execute("""
-            SELECT change_id, timestamp_utc 
+            SELECT change_id, EXTRACT(EPOCH FROM timestamp_utc) * 1000
             FROM catheter_maintenance
             ORDER BY change_id DESC LIMIT 10;
         """)
@@ -232,12 +210,10 @@ def get_status_data():
             "change_count": change_count
         }
 
-        # Format history data
         weight_history_formatted = []
         for row in history:
-            timestamp_ms = int(row[0])
             weight_history_formatted.append({
-                "timestamp": timestamp_ms,
+                "timestamp": int(row[0]),
                 "weight": float(row[1]),
                 "pyuria_conf": float(row[2])
             })
@@ -247,7 +223,7 @@ def get_status_data():
             "weight_history": weight_history_formatted,
             "change_logs": [{
                 "id": row[0],
-                "timestamp": row[1].isoformat()
+                "timestamp": int(row[1]) 
             } for row in change_logs]
         }
         
@@ -259,26 +235,15 @@ def get_status_data():
     finally:
         if conn: conn.close()
 
-# -----------------------------------------------
-# WEEKLY STATISTICS ENDPOINT (Dummy data untuk kestabilan)
-# -----------------------------------------------
-
 @app.route('/api/v1/weekly_stats', methods=['GET'])
 def get_weekly_stats():
-    """Retrieves dummy weekly statistics for dashboard stability (kerana graph mingguan dibuang)."""
     return jsonify({
         "weight_accumulation": [{"day": "Mon", "total_weight_kg": 0.0}],
         "pyuria_detection": [{"day": "Mon", "pyuria_count": 0, "normal_count": 0}]
     }), 200
 
-
-# ==================================
-# 5. DASHBOARD CONTROL ENDPOINTS
-# ==================================
-
 @app.route('/api/v1/control_buzzer', methods=['POST'])
 def control_buzzer():
-    """Receives Buzzer commands (ON/OFF/RESET) from the dashboard."""
     data = request.json
     command = data.get('command')
     
@@ -307,14 +272,12 @@ def control_buzzer():
 
     except Exception as e:
         if conn: conn.rollback()
-        print(f"❌ Error in control_buzzer: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
     finally:
         if conn: conn.close()
 
 @app.route('/api/v1/log_change', methods=['POST'])
 def log_catheter_change():
-    """Logs catheter change event and resets weight."""
     conn = None
     try:
         conn = get_db_connection()
@@ -337,15 +300,85 @@ def log_catheter_change():
         
     except Exception as e:
         if conn: conn.rollback()
-        print(f"❌ Error in log_catheter_change: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
     finally:
         if conn: conn.close()
 
 # ==================================
-# MAIN PROGRAM
+# 6. NEW MAINTENANCE FUNCTIONS (CLEAR & EXPORT)
 # ==================================
+
+@app.route('/api/v1/clear_maintenance_log', methods=['POST'])
+def clear_maintenance_log():
+    """
+    DANGER: Clears ALL records from catheter_maintenance table.
+    Resets ID counter to 1.
+    """
+    conn = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # 1. DELETE ALL DATA
+        cur.execute("DELETE FROM catheter_maintenance;")
+        
+        # 2. RESET ID SEQUENCE (Supaya mula dari 1 balik)
+        # Nota: Sequence name biasanya 'catheter_maintenance_change_id_seq'.
+        # Kalau error, mungkin nama sequence lain, tapi ini default PostgreSQL.
+        cur.execute("ALTER SEQUENCE catheter_maintenance_change_id_seq RESTART WITH 1;")
+        
+        conn.commit()
+        print("⚠️ MAINTENANCE LOG CLEARED BY USER")
+        return jsonify({"status": "success", "message": "All maintenance logs cleared."}), 200
+        
+    except Exception as e:
+        if conn: conn.rollback()
+        print(f"❌ Error clearing log: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        if conn: conn.close()
+
+@app.route('/api/v1/export_maintenance_log', methods=['GET'])
+def export_maintenance_log():
+    """
+    Exports catheter_maintenance table as a CSV file for download.
+    """
+    conn = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # Select data
+        cur.execute("SELECT change_id, timestamp_utc FROM catheter_maintenance ORDER BY change_id ASC;")
+        rows = cur.fetchall()
+        
+        # Create CSV in memory
+        output = io.StringIO()
+        writer = csv.writer(output)
+        
+        # Add Header
+        writer.writerow(['ID', 'Timestamp (UTC)', 'Date', 'Time'])
+        
+        # Add Data rows
+        for row in rows:
+            ts = row[1]
+            # Format tarikh dan masa untuk mudah dibaca dalam Excel
+            date_str = ts.strftime('%Y-%m-%d')
+            time_str = ts.strftime('%H:%M:%S')
+            writer.writerow([row[0], ts, date_str, time_str])
+            
+        # Return as downloadable file
+        return Response(
+            output.getvalue(),
+            mimetype="text/csv",
+            headers={"Content-disposition": "attachment; filename=maintenance_log.csv"}
+        )
+        
+    except Exception as e:
+        print(f"❌ Error exporting log: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        if conn: conn.close()
+
 if __name__ == '__main__':
-    # Flask akan menghidangkan index.html secara automatik di root (/)
-    # Di cloud, gunicorn akan mengendalikan port.
     app.run(host='0.0.0.0', port=5000, debug=True)
